@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const color = new URLSearchParams(window.location.search).get('color') || '7358F9';
+      console.log('color', color)
+      console.log('window.location.search', window.location.search)
+      const path = document.querySelector('path');
+      if (path) {
+        path.setAttribute('fill', `#${color}`);
+      }
+    });
+  </script>
+  <path fill="#7358F9" fill-rule="evenodd" d="M12 2c-4.408 0-8 3.461-8 8 0 1.248.535 2.612 1.213 3.87.693 1.284 1.605 2.584 2.497 3.734a49.562 49.562 0 0 0 3.496 4.014l.062.063.017.017.006.006a1 1 0 0 0 1.417 0l.006-.006.017-.017.062-.063a47.708 47.708 0 0 0 1.04-1.106 49.562 49.562 0 0 0 2.456-2.908c.893-1.15 1.804-2.45 2.497-3.735C19.465 12.612 20 11.248 20 10c0-4.539-3.592-8-8-8zm0 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" clip-rule="evenodd"/>
+</svg>

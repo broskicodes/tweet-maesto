@@ -1,3 +1,16 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next/core-web-vitals", "plugin:tailwindcss/recommended"],
+  "settings": {
+    /* Support tailwind rules inside class utility functions */
+    "tailwindcss": {
+      "callees": ["clsx", "cva", "cn"],
+      "config": "tailwind.config.ts"
+    }
+  },
+  "rules": {
+    "@next/next/no-img-element": "off",
+    "tailwindcss/classnames-order": "off",
+    "tailwindcss/enforces-shorthand": "off",
+    "tailwindcss/no-custom-classname": "off"
+  }
 }

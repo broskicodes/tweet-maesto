@@ -32,31 +32,6 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
 
-  if (!session?.user?.subscribed) {
-    return (
-      <>
-        <Card className="h-[700px] flex flex-col">
-          <CardHeader>
-            <CardTitle>Similar Accounts</CardTitle>
-            <CardDescription>
-              Accounts with a similar audience to @{handle}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col items-center justify-center gap-4">
-            <p className="text-muted-foreground text-center">
-              Upgrade to discover accounts with similar audiences
-            </p>
-            <Button onClick={() => setShowPricing(true)} variant="default">
-              <Zap className="mr-2 h-4 w-4" />
-              Get Access
-            </Button>
-          </CardContent>
-        </Card>
-        <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
-      </>
-    );
-  }
-
   const fetchSimilarAccounts = useCallback(async (pageNum: number) => {
     try {
       const response = await fetch("/api/profiles/similar", {
@@ -93,6 +68,31 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
     setPage(nextPage);
     setIsLoadingMore(false);
   };
+
+  if (!session?.user?.subscribed) {
+    return (
+      <>
+        <Card className="h-[700px] flex flex-col">
+          <CardHeader>
+            <CardTitle>Similar Accounts</CardTitle>
+            <CardDescription>
+              Accounts with a similar audience to @{handle}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col items-center justify-center gap-4">
+            <p className="text-muted-foreground text-center">
+              Upgrade to discover accounts with similar audiences
+            </p>
+            <Button onClick={() => setShowPricing(true)} variant="default">
+              <Zap className="mr-2 h-4 w-4" />
+              Get Access
+            </Button>
+          </CardContent>
+        </Card>
+        <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
+      </>
+    );
+  }
 
   return (
     <Card className="h-[700px] flex flex-col">

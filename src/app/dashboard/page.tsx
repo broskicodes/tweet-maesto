@@ -26,7 +26,7 @@ export default function DashboardPage() {
           <div className="flex justify-center items-center h-full flex-1">
             <div className="flex flex-col items-center gap-4 h-full justify-center">
               <span className="text-lg font-semibold">
-                You're not signed in.
+                {"You're not signed in."}
               </span>
               <Button onClick={() => router.push("/")}>
                 <Home className="mr-2 h-5 w-5" />

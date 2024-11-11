@@ -1,12 +1,9 @@
-import { users } from "@/lib/db-schema";
-import { db } from "@/lib/drizzle";
-import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-09-30.acacia",
+  apiVersion: "2024-10-28.acacia",
   appInfo: {
-    name: "Chesski",
+    name: "Tweet Maestro",
     version: "0.0.0",
     url: process.env.NEXT_PUBLIC_ENV_URL!,
   },
@@ -19,7 +16,7 @@ export async function POST(request: Request) {
 
   const session = await stripe.checkout.sessions.create({
     success_url: `${process.env.NEXT_PUBLIC_ENV_URL}/dashboard`,
-    cancel_url: `${process.env.NEXT_PUBLIC_ENV_URL}/dashboard`,
+    cancel_url: `${process.env.NEXT_PUBLIC_ENV_URL}/`,
     line_items: [
       {
         price: priceId,

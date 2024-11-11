@@ -56,12 +56,18 @@ export function PricingCard() {
           setProgressValue(subCount * 10);
           setRemainingPurchases(10 - subCount);
           setPriceId(process.env.NEXT_PUBLIC_PRICE_ID_30);
-        } else {
+        } else if (subCount < 20) {
           setCurrentPrice(49);
-          setNextPrice(0);
+          setNextPrice(99);
+          setProgressValue(subCount * 5);
+          setRemainingPurchases(20 - subCount);
+          setPriceId(process.env.NEXT_PUBLIC_PRICE_ID_50);
+        } else {
+          setCurrentPrice(99);
+          setNextPrice(149);
           setProgressValue(0);
           setRemainingPurchases(0);
-          setPriceId(process.env.NEXT_PUBLIC_PRICE_ID_50);
+          setPriceId(process.env.NEXT_PUBLIC_PRICE_ID_100);
         }
         setIsDataLoaded(true);
       });

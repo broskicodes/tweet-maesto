@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw, Download } from "lucide-react";
 import { toast } from "sonner";
 import { SimilarAccounts } from "./similar-accounts";
+import { PricingModal } from "@/components/layout/pricing-modal";
 
 interface DateRange {
   start: Date;
@@ -48,6 +49,7 @@ export function PersonalDashboard() {
   const [handles, setHandles] = useState<TwitterHandle[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScraping, setIsScraping] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
 
   useEffect(() => {
     if (session?.user?.handle) {
@@ -166,7 +168,12 @@ export function PersonalDashboard() {
     fetchHandles();
   }, []);
 
-  const handleTweetScrape = async (scrapeType: TwitterScrapeType) => {
+  const handleTweetScrape = async (type: TwitterScrapeType) => {
+    if (!session?.user?.subscribed) {
+      setShowPricing(true);
+      return;
+    }
+
     if (!selectedHandle) return;
 
     try {
@@ -176,14 +183,14 @@ export function PersonalDashboard() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ scrapeType, handles: [selectedHandle.handle] }),
+        body: JSON.stringify({ scrapeType: type, handles: [selectedHandle.handle] }),
       });
 
-      if (!response.ok) throw new Error(`Failed to ${scrapeType} tweets`);
+      if (!response.ok) throw new Error(`Failed to ${type} tweets`);
 
-      const waitTime = scrapeType === TwitterScrapeType.Update ? 120000 : 300000;
+      const waitTime = type === TwitterScrapeType.Update ? 120000 : 300000;
       const message =
-        scrapeType === TwitterScrapeType.Update
+        type === TwitterScrapeType.Update
           ? "Scraping tweets, will refresh in 2 minutes..."
           : "Initializing tweets, this may take a few minutes...";
 
@@ -207,17 +214,22 @@ export function PersonalDashboard() {
         setIsScraping(false);
 
         toast.success(
-          scrapeType === TwitterScrapeType.Update ? "Tweets refreshed!" : "Tweets initialized!",
+          type === TwitterScrapeType.Update ? "Tweets refreshed!" : "Tweets initialized!",
         );
       }, waitTime);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
-      console.error(`Error ${scrapeType} tweets:`, err);
+      console.error(`Error ${type} tweets:`, err);
       setIsScraping(false);
     }
   };
 
   const handleImportNewHandle = async () => {
+    if (!session?.user?.subscribed) {
+      setShowPricing(true);
+      return;
+    }
+
     if (!searchQuery) return;
 
     try {
@@ -308,6 +320,11 @@ export function PersonalDashboard() {
                 value={selectedHandle?.handle}
                 onValueChange={(value) => {
                   const handle = handles.find((handle) => handle.handle === value);
+
+                  if (!session?.user?.subscribed) {
+                    setShowPricing(true);
+                    return;
+                  }
 
                   setSelectedHandle(
                     handle
@@ -435,9 +452,10 @@ export function PersonalDashboard() {
             }} 
           />}
         </div>
-        <TweetPerformance tweets={filteredTweets} />
         <Metrics tweets={filteredTweets} prevPeriodTweets={prevPeriodTweets} />
+        <TweetPerformance tweets={filteredTweets} />
       </main>
+      <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
     </div>
   );
 }

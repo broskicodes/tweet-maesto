@@ -12,17 +12,18 @@ import {
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
-  PolarRadiusAxis,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Eye, ThumbsUp, Bookmark, MessageCircle, Repeat, BarChart3Icon } from "lucide-react";
+import { Eye, ThumbsUp, Bookmark, MessageCircle, Repeat, BarChart3Icon, Zap } from "lucide-react";
 import { Metric, metricLabels, Tweet } from "@/lib/types";
 import { useState, useCallback } from "react";
 import { format } from "date-fns";
-import { Toggle } from "@/components/ui/toggle";
 import { Label } from "@/components/ui/label";
 import { FilterPopover, SearchFilters } from "./filter-popover";
+import { useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { PricingModal } from "@/components/layout/pricing-modal";
 
 const metricIcons = {
   impressions: <Eye className="h-4 w-4" />,
@@ -32,8 +33,6 @@ const metricIcons = {
   retweets: <Repeat className="h-4 w-4" />,
   engagement_rate: <BarChart3Icon className="h-4 w-4" />,
 };
-
-type TimeRange = "24h" | "7d" | "28d" | "all";
 
 interface TweetPerformanceProps {
   tweets: Tweet[];
@@ -138,7 +137,9 @@ const CustomTooltip = ({ active, payload, label, selectedMetric }: any) => {
 };
 
 export function TweetPerformance({ tweets, showTimeRange = false }: TweetPerformanceProps) {
+  const { data: session } = useSession();
   const [selectedMetric, setSelectedMetric] = useState<Metric>("impressions");
+  const [showPricing, setShowPricing] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
     verified: false,
     mediaOnly: false,
@@ -219,6 +220,31 @@ export function TweetPerformance({ tweets, showTimeRange = false }: TweetPerform
       window.open(data.url, "_blank");
     }
   }, []);
+
+  if (!session?.user?.subscribed) {
+    return (
+      <>
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle>Tweet Performance Overview</CardTitle>
+            <CardDescription>Analyze different metrics for your tweets</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[400px] flex flex-col items-center justify-center gap-4">
+              <p className="text-muted-foreground text-center">
+                Upgrade to access detailed tweet performance analytics
+              </p>
+              <Button onClick={() => setShowPricing(true)} variant="default">
+                <Zap className="mr-2 h-4 w-4" />
+                Get Access
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
+      </>
+    );
+  }
 
   if (!tweets.length) {
     return (

@@ -2,8 +2,11 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import SocialProofUsers from "./social-proof-users";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export default function HeroDash() {
+  const { data: session } = useSession();
+
   return (
     <section className="container flex flex-col items-center gap-8 pb-28 pt-20 sm:gap-10">
       <SocialProofUsers />
@@ -15,7 +18,7 @@ export default function HeroDash() {
       </p>
       <div>
         <Button asChild size="lg" className="cursor-pointer text-lg px-12 py-6">
-          <Link href="#pricing">Get Started</Link>
+          {session ? <Link href="/dashboard">Go to Dashboard</Link> : <Link href="#pricing">Get Started</Link>}
         </Button>
       </div>
       <div className="relative sm:mt-8">

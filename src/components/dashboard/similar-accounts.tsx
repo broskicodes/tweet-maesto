@@ -3,6 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useSession } from "next-auth/react";
+import { Zap } from "lucide-react";
+import { PricingModal } from "@/components/layout/pricing-modal";
 
 interface SimilarAccount {
   handle: string;
@@ -21,11 +24,38 @@ interface SimilarAccountsProps {
 }
 
 export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProps) {
+  const { data: session } = useSession();
   const [accounts, setAccounts] = useState<SimilarAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
+
+  if (!session?.user?.subscribed) {
+    return (
+      <>
+        <Card className="h-[700px] flex flex-col">
+          <CardHeader>
+            <CardTitle>Similar Accounts</CardTitle>
+            <CardDescription>
+              Accounts with a similar audience to @{handle}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col items-center justify-center gap-4">
+            <p className="text-muted-foreground text-center">
+              Upgrade to discover accounts with similar audiences
+            </p>
+            <Button onClick={() => setShowPricing(true)} variant="default">
+              <Zap className="mr-2 h-4 w-4" />
+              Get Access
+            </Button>
+          </CardContent>
+        </Card>
+        <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
+      </>
+    );
+  }
 
   const fetchSimilarAccounts = useCallback(async (pageNum: number) => {
     try {
@@ -65,7 +95,7 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
   };
 
   return (
-    <Card className="h-[600px] flex flex-col">
+    <Card className="h-[700px] flex flex-col">
       <CardHeader>
         <CardTitle>Similar Accounts</CardTitle>
         <CardDescription>
@@ -73,7 +103,7 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1">
-        <ScrollArea className="h-[500px] mb-4">
+        <ScrollArea className="h-[570px] mb-4">
           {isLoading ? (
             <div className="flex justify-center py-4">Loading...</div>
           ) : (

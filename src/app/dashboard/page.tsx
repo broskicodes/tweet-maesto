@@ -9,13 +9,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { useState } from "react";
+import { PricingModal } from "@/components/layout/pricing-modal";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("personal");
+  const [showPricing, setShowPricing] = useState(false);
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-background relative">
@@ -41,7 +42,7 @@ export default function DashboardPage() {
               className="w-full"
               onValueChange={(value) => {
                 if (value === "tweets" && !session?.user?.subscribed) {
-                  toast.info("Please subscribe to view this tab.");
+                  setShowPricing(true);
                   return;
                 }
                 setActiveTab(value);
@@ -60,6 +61,7 @@ export default function DashboardPage() {
             </Tabs>
           </div>
         )}
+        <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
       </main>
       <Footer />
     </div>

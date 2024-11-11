@@ -53,7 +53,7 @@ export function Header() {
           {status === "authenticated" ? (
             <Button onClick={handleSignOut}>Sign Out</Button>
           ) : (
-            <Button onClick={handleJoinEpidemic}>Join the Epidemic</Button>
+            <Button onClick={handleJoinEpidemic}>Sign Up</Button>
           )}
         </div>
       </div>
@@ -76,7 +76,7 @@ export function Header() {
               </Button>
             ) : (
               <Button onClick={handleJoinEpidemic} size="lg" className="mt-2 w-full">
-                Join the Epidemic
+                Sign Up
               </Button>
             )}
           </nav>

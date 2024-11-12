@@ -188,10 +188,10 @@ export function PersonalDashboard() {
 
       if (!response.ok) throw new Error(`Failed to ${type} tweets`);
 
-      const waitTime = type === TwitterScrapeType.Update ? 120000 : 300000;
+      const waitTime = type === TwitterScrapeType.Daily ? 30000 : 180000;
       const message =
-        type === TwitterScrapeType.Update
-          ? "Scraping tweets, will refresh in 2 minutes..."
+        type === TwitterScrapeType.Daily
+          ? "Scraping tweets, will refresh in 30 seconds..."
           : "Initializing tweets, this may take a few minutes...";
 
       toast.success(message);
@@ -214,7 +214,7 @@ export function PersonalDashboard() {
         setIsScraping(false);
 
         toast.success(
-          type === TwitterScrapeType.Update ? "Tweets refreshed!" : "Tweets initialized!",
+          type === TwitterScrapeType.Daily ? "Tweets refreshed!" : "Tweets initialized!",
         );
       }, waitTime);
     } catch (err) {
@@ -400,7 +400,7 @@ export function PersonalDashboard() {
             )}
             <Button
               variant="outline"
-              onClick={() => handleTweetScrape(TwitterScrapeType.Update)}
+              onClick={() => handleTweetScrape(TwitterScrapeType.Daily)}
               disabled={isLoading || !selectedHandle || isScraping}
               className="flex items-center gap-2"
             >

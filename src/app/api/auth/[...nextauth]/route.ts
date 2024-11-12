@@ -78,6 +78,7 @@ const handler = NextAuth({
             .values({
               id: BigInt(user.id),
               handle: profileData.username as string,
+              name: profileData.name as string,
               url: `https://x.com/${profileData.username}`,
               pfp: profileData.profile_image_url as string,
             })
@@ -117,7 +118,7 @@ const handler = NextAuth({
           if (createdAt && new Date().getTime() - createdAt.getTime() <= 30000) {
             console.log("Initializing Twitter handle:", profileData.username);
             const jobResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_SCRAPER_URL}/scrape/twitter`,
+              `${process.env.NEXT_PUBLIC_SCRAPER_URL}/twitter/scrape`,
               {
                 method: "POST",
                 headers: {

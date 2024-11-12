@@ -153,7 +153,6 @@ export async function POST(request: NextRequest) {
     // );
 
     console.log(handleWithFollowers.map((handle) => handle.url));
-    console.log(handleWithFollowers[0]);
     // Filter for handles with >1000 followers
     const filteredHandles = handleWithFollowers
       // .filter((handle) => handle.followers > 1000 && handle.followers < 1000000)

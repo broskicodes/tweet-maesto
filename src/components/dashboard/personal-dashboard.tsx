@@ -264,7 +264,7 @@ export function PersonalDashboard() {
   };
 
   const doIt = async () => {
-    const response = await fetch("/api/it", {
+    const response = await fetch("/api/profile", {
       method: "POST",
       body: JSON.stringify({ 
         handle: selectedHandle?.handle, 

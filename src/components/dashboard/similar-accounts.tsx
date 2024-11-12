@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSession } from "next-auth/react";
 import { Zap } from "lucide-react";
 import { PricingModal } from "@/components/layout/pricing-modal";
+import { toast } from "sonner";
 
 interface SimilarAccount {
   handle: string;
@@ -54,6 +55,27 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
     },
     [handle],
   );
+
+  const initialize = async () => {
+    setIsLoading(true);
+    
+    const response = await fetch("/api/profile", {
+      method: "POST",
+      body: JSON.stringify({ 
+        handle,
+        all: false,
+      }),
+    });
+
+    if (!response.ok) {
+      toast.error("Failed to initialize handle");
+      setIsLoading(false);
+      return;
+    }
+
+    setPage(0);
+    fetchSimilarAccounts(0).finally(() => setIsLoading(false));
+  };
 
   useEffect(() => {
     setIsLoading(true);
@@ -106,6 +128,18 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
         <ScrollArea className="h-[570px] mb-4">
           {isLoading ? (
             <div className="flex justify-center py-4">Loading...</div>
+          ) : accounts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full gap-4">
+              <p className="text-muted-foreground text-center">
+                Please initialize this panel once your tweets have loaded.
+              </p>
+              <Button 
+                onClick={() => initialize()} 
+                variant="default"
+              >
+                Initialize
+              </Button>
+            </div>
           ) : (
             <div className="space-y-4 pr-4 pb-6">
               {accounts.map((account) => (

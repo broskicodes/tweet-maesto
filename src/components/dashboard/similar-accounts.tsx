@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { Zap } from "lucide-react";
 import { PricingModal } from "@/components/layout/pricing-modal";
 import { toast } from "sonner";
+import { ChatSheet } from "@/components/layout/chat-sheet";
 
 interface SimilarAccount {
   handle: string;
@@ -32,6 +33,7 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const fetchSimilarAccounts = useCallback(async (pageNum: number) => {
     try {
@@ -59,7 +61,7 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
   const initialize = async () => {
     setIsLoading(true);
     
-    const response = await fetch("/api/profile", {
+    const response = await fetch("/api/profiles", {
       method: "POST",
       body: JSON.stringify({ 
         handle,
@@ -117,104 +119,118 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
   }
 
   return (
-    <Card className="h-[700px] flex flex-col">
-      <CardHeader>
-        <CardTitle>Similar Accounts</CardTitle>
-        <CardDescription>
-          Accounts with a similar audience to @{handle}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex-1">
-        <ScrollArea className="h-[570px] mb-4">
-          {isLoading ? (
-            <div className="flex justify-center py-4">Loading...</div>
-          ) : accounts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full gap-4">
-              <p className="text-muted-foreground text-center">
-                Please initialize this panel once your tweets have loaded.
-              </p>
-              <Button 
-                onClick={() => initialize()} 
-                variant="default"
-              >
-                Initialize
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4 pr-4 pb-6">
-              {accounts.map((account) => (
-                <Card 
-                  key={account.handle} 
-                  className="p-4 hover:bg-muted/50 transition-colors cursor-pointer"
-                  onClick={() => onAccountSelect?.(account.handle)}
+    <>
+      <Card className="h-[700px] flex flex-col">
+        <CardHeader>
+          <CardTitle>Similar Accounts</CardTitle>
+          <CardDescription>
+            Accounts with a similar audience to @{handle}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1">
+          <ScrollArea className="h-[570px] mb-4">
+            {isLoading ? (
+              <div className="flex justify-center py-4">Loading...</div>
+            ) : accounts.length === 0 || true ? (
+              <div className="flex flex-col items-center justify-center h-full gap-4">
+                <p className="text-muted-foreground text-center">
+                  Please initialize this panel once your tweets have loaded.
+                </p>
+                <Button 
+                  onClick={() => {
+                    initialize();
+                    setIsChatOpen(true);
+                  }} 
+                  variant="default"
                 >
-                  <div className="flex flex-col space-y-4">
-                    {/* Header with profile info */}
-                    <div className="flex items-center space-x-3">
-                      <a
-                        href={`https://twitter.com/${account.handle}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center space-x-3"
-                      >
-                        {account.pfp && (
-                          <img
-                            src={account.pfp}
-                            alt={account.name}
-                            className="w-10 h-10 rounded-full"
-                          />
-                        )}
-                        <div>
-                          <div className="font-medium">{account.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            @{account.handle} · {account.followers.toLocaleString()} followers
-                          </div>
-                        </div>
-                      </a>
-                    </div>
-
-                    {/* Target Audience */}
-                    <div className="space-y-2">
-                      <div className="text-sm font-medium">Target Audience:</div>
-                      <div className="text-sm text-muted-foreground">
-                        {account.target_audience}
-                      </div>
-                    </div>
-
-                    {/* Content Pillars */}
-                    <div className="space-y-2">
-                      <div className="text-sm font-medium">Content Pillars:</div>
-                      <div className="flex flex-wrap gap-2">
-                        {account.content_pillars.map((pillar, index) => (
-                          <Badge key={index} variant="secondary">
-                            {pillar}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Similarity Score */}
-                    <div className="text-xs text-muted-foreground text-right">
-                      {(account.similarity * 100).toFixed(1)}% similar
-                    </div>
-                  </div>
-                </Card>
-              ))}
-              {hasMore && (
-                <div className="pt-2 flex justify-center">
-                  <Button 
-                    variant="outline" 
-                    onClick={loadMore}
-                    disabled={isLoadingMore}
+                  Initialize
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4 pr-4 pb-6">
+                {accounts.map((account) => (
+                  <Card 
+                    key={account.handle} 
+                    className="p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => onAccountSelect?.(account.handle)}
                   >
-                    {isLoadingMore ? "Loading..." : "Load More"}
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-        </ScrollArea>
-      </CardContent>
-    </Card>
+                    <div className="flex flex-col space-y-4">
+                      {/* Header with profile info */}
+                      <div className="flex items-center space-x-3">
+                        <a
+                          href={`https://twitter.com/${account.handle}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center space-x-3"
+                        >
+                          {account.pfp && (
+                            <img
+                              src={account.pfp}
+                              alt={account.name}
+                              className="w-10 h-10 rounded-full"
+                            />
+                          )}
+                          <div>
+                            <div className="font-medium">{account.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              @{account.handle} · {account.followers.toLocaleString()} followers
+                            </div>
+                          </div>
+                        </a>
+                      </div>
+
+                      {/* Target Audience */}
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium">Target Audience:</div>
+                        <div className="text-sm text-muted-foreground">
+                          {account.target_audience}
+                        </div>
+                      </div>
+
+                      {/* Content Pillars */}
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium">Content Pillars:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {account.content_pillars.map((pillar, index) => (
+                            <Badge key={index} variant="secondary">
+                              {pillar}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Similarity Score */}
+                      <div className="text-xs text-muted-foreground text-right">
+                        {(account.similarity * 100).toFixed(1)}% similar
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+                {hasMore && (
+                  <div className="pt-2 flex justify-center">
+                    <Button 
+                      variant="outline" 
+                      onClick={loadMore}
+                      disabled={isLoadingMore}
+                    >
+                      {isLoadingMore ? "Loading..." : "Load More"}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </ScrollArea>
+        </CardContent>
+      </Card>
+      <ChatSheet 
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        onComplete={() => {
+          setIsChatOpen(false);
+          // initialize();
+        }}
+        handle={handle}
+      />
+    </>
   );
 } 

@@ -135,3 +135,7 @@ export const metricLabels: Record<Metric, string> = {
   bookmarks: "Bookmarks",
   retweets: "Retweets",
 };
+
+export enum ChatPromptType {
+  AudienceInitialize = "audience_initialize",
+}

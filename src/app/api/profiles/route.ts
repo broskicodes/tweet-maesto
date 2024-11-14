@@ -12,7 +12,7 @@ const openai = new OpenAI({
 });
 
 // Define response schema
-const analysisSchema = z.object({
+export const analysisSchema = z.object({
   persona: z
     .string()
     .describe("A description of the user's persona based on their profile and tweets"),

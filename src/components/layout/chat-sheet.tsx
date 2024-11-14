@@ -4,6 +4,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ChatPromptType } from "@/lib/types";
+import { v4 as uuidv4 } from "uuid";
+import { useSession } from "next-auth/react";
 
 interface Message {
   id: string;
@@ -22,7 +24,10 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [chatId] = useState(() => uuidv4());
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const { data: session } = useSession();
 
   // const loadHistory = async () => {
   //   try {
@@ -70,8 +75,12 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: msgs.map(({ content, role }) => ({ content, role })),
-          type: ChatPromptType.AudienceInitialize,
-          handle,
+          type: ChatPromptType.AudienceInitializeChat,
+          user: {
+            handle,
+            id: session?.user.id,
+          },
+          chatId,
         }),
       });
 
@@ -92,6 +101,29 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
           newMessages[newMessages.length - 1].content = content;
           return newMessages;
         });
+        const complete = content.split("<complete>")[1]?.split("</complete>")[0];
+        if (complete === "True") {
+          const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              messages: msgs.map(({ content, role }) => ({ content, role })),
+              type: ChatPromptType.AudienceInitialize,
+              user: {
+                handle,
+                id: session?.user.id,
+              },
+              chatId,
+            }),
+          });
+
+          if (!response.ok) throw new Error("Failed to fetch");
+
+          const analysis = await response.json();
+          console.log(analysis);
+          
+          onComplete();
+        }
       }
 
     } catch (error) {
@@ -99,7 +131,7 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
     } finally {
       setIsLoading(false);
     }
-  }, [messages, input, isLoading, handle]);
+  }, [messages, input, isLoading, handle, chatId]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -140,7 +172,7 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
                         : "bg-muted mr-4"
                     }`}
                   >
-                    {message.content || "..."}
+                    {message.role === "user" ? message.content : message.content.split("<response>")[1]?.split("</response>")[0] || "..."}
                   </div>
                 </div>
               ))}

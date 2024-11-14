@@ -31,6 +31,7 @@ const handler = NextAuth({
           .select({
             id: users.id,
             twitter_handle_id: users.twitter_handle_id,
+            onboarded: users.onboarded,
           })
           .from(users)
           .where(eq(users.twitter_handle_id, BigInt(userId)))
@@ -54,6 +55,8 @@ const handler = NextAuth({
           session.user.handle = twitterHandle.handle;
           // @ts-ignore
           session.user.subscribed = userSubscription?.active || false;
+          // @ts-ignore
+          session.user.onboarded = dbUser.onboarded;
         }
       }
       return session;

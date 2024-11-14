@@ -1,4 +1,4 @@
-import { tweets, twitterFollowers, twitterHandles, chats, chatMessages } from "@/lib/db-schema";
+import { tweets, twitterFollowers, twitterHandles, chats, chatMessages, profiles, users } from "@/lib/db-schema";
 import { db } from "@/lib/drizzle";
 import { ChatPromptType } from "@/lib/types";
 import { and, desc, eq, gte, isNull } from "drizzle-orm";
@@ -6,13 +6,15 @@ import { getServerSession } from "next-auth";
 // import { authOptions } from "@/lib/auth";
 
 import OpenAI from "openai";
+import { zodResponseFormat } from "openai/helpers/zod.mjs";
+import { analysisSchema } from "../profiles/route";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
 const SYSTEM_PROMPTS: Record<ChatPromptType, string> = {
-  [ChatPromptType.AudienceInitialize]: 
+  [ChatPromptType.AudienceInitializeChat]: 
     `You are a Twitter account manager and growth expert. You excel at creating digital personas and defining target audiences for clients.
 
 <client>
@@ -27,7 +29,37 @@ You are currenly onboarding a new client. Information about the client is provid
 
 Your task is to ask the client questions one at a time and deduce their ideal digital persona and target audience. You may ask up to 3 questions to the client.
 
-Use the informatcion provided about them as well as their past tweets in <tweet> tags to formulate insightful questions. Keep your responses short, friendly and informal.`,
+Use the informatcion provided about them as well as their past tweets in <tweet> tags to formulate insightful questions. Keep your responses short, friendly and informal.
+
+Each response you generate will be output in 2 parts:
+1. The response to the user. Provide this in <response> tags.
+2. Whether the interaction is complete. Specify "True" or "False" in <complete> tags.
+
+In your last response, thank the user for their answers and inform them that you are now generating their persona.`,
+
+    [ChatPromptType.AudienceInitialize]: 
+    `You are a Twitter account manager and growth expert. You excel at creating digital personas and defining target audiences for clients.
+
+<client>
+{client}
+</client>
+
+<tweets>
+{tweets}
+</tweets>
+
+<conversation>
+{conversation}
+</conversation>
+
+You have just finished the onboarding conversation with the client. The conversation is provided above in <conversation> tags.
+
+You can also find information about the client's twitter account is <client> tags and their tweets in <tweets> tags.
+
+Using the provided information, your task is to output a JSON object with the following fields:
+- persona: A description of the user's persona based on their profile information and tweets. 1 sentence.
+- target_audience: An estimate of the user's target audience given their description and what they tweet about. 1 sentence.
+- content_pillars: A list of 2-4 key topics the user centers their tweets around. Pay special attention to the tweets that get the most engagement (views, likes, replies, etc.).`,
 };
 
 export async function POST(req: Request) {
@@ -37,7 +69,7 @@ export async function POST(req: Request) {
 //   }
 
   try {
-    const { messages, type, handle } = await req.json();
+    const { messages, type, user: { handle, id: userId }, chatId } = await req.json();
 
     if (!messages || !type || !handle) {
       return new Response("Missing required fields", { status: 400 });
@@ -84,91 +116,151 @@ export async function POST(req: Request) {
         .orderBy(desc(tweets.date))
         .limit(20);
 
-    const systemMessage = {
-      role: "system",
-      content: SYSTEM_PROMPTS[type as ChatPromptType]
-        .replace("{client}", JSON.stringify({
-            name: handleRecord.name,
-            description: handleRecord.description,
-            verified: handleRecord.verified,
-            followers: followers,
-        }))
-        .replace("{tweets}", userTweets.map((tweet, index) => `    <tweet_${index}>
+    switch (type) {
+      case ChatPromptType.AudienceInitializeChat:{
+
+        const systemMessage = {
+          role: "system",
+          content: SYSTEM_PROMPTS[type as ChatPromptType]
+            .replace("{client}", JSON.stringify({
+                name: handleRecord.name,
+                description: handleRecord.description,
+                verified: handleRecord.verified,
+                followers: followers,
+            }))
+            .replace("{tweets}", userTweets.map((tweet, index) => `    <tweet_${index}>
         text: "${tweet.text}"
         date: "${tweet.date}"
         views: ${tweet.view_count}
     </tweet_${index}>`).join("\n"))
-    };
+        };
 
-    console.log(systemMessage.content);
+      // Create or get existing chat
+      const [chatRecord] = await db
+        .insert(chats)
+        .values({
+          id: chatId,
+          user_id: userId,
+          type,
+        })
+        .onConflictDoNothing()
+        .returning();
 
-    // Create or get existing chat
-    // let [chatRecord] = await db
-    //   .select()
-    //   .from(chats)
-    //   .where(and(
-    //     eq(chats.user_id, session.user.id),
-    //     eq(chats.type, type),
-    //     isNull(chats.deleted_at)
-    //   ))
-    //   .limit(1);
+      // Store the new message
+      if (messages.length > 0) {
+        const lastMessage = messages[messages.length - 1];
+        await db.insert(chatMessages).values({
+          chat_id: chatId,
+          role: lastMessage.role,
+          content: lastMessage.content,
+        });
+      }
 
-    // if (!chatRecord) {
-    //   const [newChat] = await db
-    //     .insert(chats)
-    //     .values({
-    //       user_id: session.user.id,
-    //       type,
-    //     })
-    //     .returning();
-    //   chatRecord = newChat;
-    // }
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [systemMessage, ...messages],
+          stream: true,
+        });
 
-    // // Store the new message
-    // if (messages.length > 0) {
-    //   const lastMessage = messages[messages.length - 1];
-    //   await db.insert(chatMessages).values({
-    //     chat_id: chatRecord.id,
-    //     role: lastMessage.role,
-    //     content: lastMessage.content,
-    //   });
-    // }
+        const stream = new ReadableStream({
+          async start(controller) {
+            let aiResponse = '';
+            
+            for await (const chunk of response) {
+              const content = chunk.choices[0]?.delta?.content || '';
+              aiResponse += content;
+              controller.enqueue(content);
+            }
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [systemMessage, ...messages],
-      stream: true,
-    });
+            // Store AI response
+            await db.insert(chatMessages).values({
+              chat_id: chatId,
+              role: 'assistant',
+              content: aiResponse,
+            });
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        let aiResponse = '';
-        
-        for await (const chunk of response) {
-          const content = chunk.choices[0]?.delta?.content || '';
-          aiResponse += content;
-          controller.enqueue(content);
-        }
+            controller.close();
+          },
+        });
 
-        // Store AI response
-        // await db.insert(chatMessages).values({
-        //   chat_id: chatRecord.id,
-        //   role: 'assistant',
-        //   content: aiResponse,
-        // });
+        return new Response(stream, {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+          },
+        });
+      }
 
-        controller.close();
-      },
-    });
+      case ChatPromptType.AudienceInitialize: {
+        const systemMessage = {
+          role: "system",
+          content: SYSTEM_PROMPTS[type as ChatPromptType]
+            .replace("{conversation}", messages.map((message: { role: string; content: string }) => `    <message>
+        role: "${message.role}"
+        content: "${message.content.match(/<response>([^]*?)<\/response>/)?.[1]?.trim() || message.content}"
+    </message>`).join("\n"))
+            .replace("{client}", JSON.stringify({
+                name: handleRecord.name,
+                description: handleRecord.description,
+                verified: handleRecord.verified,
+                followers: followers,
+            }))
+            .replace("{tweets}", userTweets.map((tweet, index) => `    <tweet_${index}>
+        text: "${tweet.text}"
+        date: "${tweet.date}"
+        views: ${tweet.view_count}
+    </tweet_${index}>`).join("\n"))
+        };
 
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    });
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [{ role: "system", content: systemMessage.content }],
+          response_format: zodResponseFormat(analysisSchema, "analysis"),
+        });
 
+        const content = response.choices[0].message.content;
+        if (!content) throw new Error("No content in response");
+
+        const rawAnalysis = JSON.parse(content);
+        const analysis = analysisSchema.parse(rawAnalysis);
+
+        console.log(analysis);
+
+        const embeddingResponse = await openai.embeddings.create({
+          model: "text-embedding-3-small",
+          input: `${analysis.persona} target audience: ${analysis.target_audience}`,
+          dimensions: 384,
+        });
+
+        // Store profile with embeddings
+        await db
+        .insert(profiles)
+        .values({
+          handle_id: handleRecord.id,
+          persona: analysis.persona,
+          target_audience: analysis.target_audience,
+          content_pillars: analysis.content_pillars,
+          embedding: embeddingResponse.data[0].embedding,
+        })
+        .onConflictDoUpdate({
+          target: profiles.handle_id,
+          set: {
+            persona: analysis.persona,
+            target_audience: analysis.target_audience,
+            content_pillars: analysis.content_pillars,
+            embedding: embeddingResponse.data[0].embedding,
+            updated_at: new Date(),
+          },
+        });
+
+        await db.update(users).set({
+          onboarded: true,
+        }).where(eq(users.id, userId));
+
+        return new Response(JSON.stringify({ analysis }), { status: 200 });
+      }
+    }
   } catch (error) {
     console.error("Chat API error:", error);
     return new Response("Internal server error", { status: 500 });

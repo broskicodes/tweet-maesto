@@ -9,6 +9,7 @@ declare module "next-auth" {
       image?: string | null;
       handle?: string | null;
       subscribed?: boolean | null;
+      onboarded?: boolean | null;
     };
   }
 }
@@ -137,5 +138,6 @@ export const metricLabels: Record<Metric, string> = {
 };
 
 export enum ChatPromptType {
+  AudienceInitializeChat = "audience_initialize_chat",
   AudienceInitialize = "audience_initialize",
 }

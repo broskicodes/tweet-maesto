@@ -131,19 +131,30 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
           <ScrollArea className="h-[570px] mb-4">
             {isLoading ? (
               <div className="flex justify-center py-4">Loading...</div>
-            ) : accounts.length === 0 || true ? (
+            ) : session?.user?.handle === handle && !session?.user?.onboarded ? (
               <div className="flex flex-col items-center justify-center h-full gap-4">
                 <p className="text-muted-foreground text-center">
                   Let's craft your digital persona and determine your target audience
                 </p>
                 <Button 
                   onClick={() => {
-                    // initialize();
                     setIsChatOpen(true);
                   }} 
                   variant="default"
                 >
                   Get Started
+                </Button>
+              </div>
+            ) : accounts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full gap-4">
+                <p className="text-muted-foreground text-center">
+                  This account hasn't been initialized yet
+                </p>
+                <Button 
+                  onClick={initialize} 
+                  variant="default"
+                >
+                  Initialize Account
                 </Button>
               </div>
             ) : (
@@ -227,7 +238,7 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
         onClose={() => setIsChatOpen(false)}
         onComplete={() => {
           setIsChatOpen(false);
-          // initialize();
+          toast.success("Persona generated. Loading similar accounts...");
         }}
         handle={handle}
       />

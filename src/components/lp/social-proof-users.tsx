@@ -6,16 +6,16 @@ const testimonials = [
     src: "https://unavatar.io/twitter/rexan_wong",
   },
   {
-    alt: "@dillionverma",
-    src: "https://unavatar.io/twitter/dillionverma",
+    alt: "@mattiapomelli",
+    src: "https://unavatar.io/twitter/mattiapomelli",
   },
   {
-    alt: "@0xPaulius",
-    src: "https://unavatar.io/twitter/0xPaulius",
+    alt: "@lychkel",
+    src: "https://unavatar.io/twitter/lychkel",
   },
   {
-    alt: "@jackfriks",
-    src: "https://unavatar.io/twitter/jackfriks",
+    alt: "@jean__gatt",
+    src: "https://unavatar.io/twitter/jean__gatt",
   },
   {
     alt: "@braedenhall_",

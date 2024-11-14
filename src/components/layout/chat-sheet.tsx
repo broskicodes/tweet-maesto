@@ -121,7 +121,7 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
 
           const analysis = await response.json();
           console.log(analysis);
-          
+
           onComplete();
         }
       }
@@ -131,7 +131,7 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
     } finally {
       setIsLoading(false);
     }
-  }, [messages, input, isLoading, handle, chatId]);
+  }, [messages, input, isLoading, handle, chatId, onComplete]);
 
   useEffect(() => {
     if (scrollRef.current) {

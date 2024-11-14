@@ -134,7 +134,7 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
             ) : session?.user?.handle === handle && !session?.user?.onboarded ? (
               <div className="flex flex-col items-center justify-center h-full gap-4">
                 <p className="text-muted-foreground text-center">
-                  Let's craft your digital persona and determine your target audience
+                  {"Let's craft your digital persona and determine your target audience"}
                 </p>
                 <Button 
                   onClick={() => {
@@ -148,7 +148,7 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
             ) : accounts.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4">
                 <p className="text-muted-foreground text-center">
-                  This account hasn't been initialized yet
+                  {"This account hasn't been initialized yet"}
                 </p>
                 <Button 
                   onClick={initialize} 

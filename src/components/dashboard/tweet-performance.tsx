@@ -39,25 +39,24 @@ interface TweetPerformanceProps {
   showTimeRange?: boolean;
 }
 
-const CustomTooltip = ({ active, payload, label, selectedMetric }: any) => {
+const calculateMaxValues = (chartData: any[]) => ({
+  impressions: Math.max(...chartData.map((t) => t.impressions)) * 0.5,
+  likes: Math.max(...chartData.map((t) => t.likes)) * 0.5,
+  comments: Math.max(...chartData.map((t) => t.comments)) * 0.5,
+  bookmarks: Math.max(...chartData.map((t) => t.bookmarks)) * 0.5,
+  retweets: Math.max(...chartData.map((t) => t.retweets)) * 0.5,
+  engagement_rate: Math.max(...chartData.map((t) => t.engagement_rate)) * 0.5
+});
+
+const CustomTooltip = ({ active, payload, label, selectedMetric, maxValues }: any) => {
   if (!active || !payload || !payload.length) return null;
 
   const tweet = payload[0].payload;
 
   // Normalize values to a 0-100 scale
   const normalizeValue = (value: number, metric: string) => {
-    // Find reasonable maximum values for each metric
-    const maxValues = {
-      impressions: 1000000, // 1M
-      likes: 5000, // 1K
-      comments: 250, // 100
-      bookmarks: 3500, // 100
-      retweets: 1000,
-      engagement_rate: 3,
-    };
-
     const max = maxValues[metric as keyof typeof maxValues];
-    return (value / max) * 100 > 100 ? 100 : (value / max) * 100;
+    return max > 0 ? (value / max) * 100 : 0;
   };
 
   const radarData = [
@@ -214,6 +213,9 @@ export function TweetPerformance({ tweets, showTimeRange = false }: TweetPerform
     })
     .sort((a, b) => a.date.getTime() - b.date.getTime()); // Sort by date
 
+  // Calculate maxValues once when chartData is created
+  const maxValues = calculateMaxValues(chartData);
+
   // Add click handler
   const handleBarClick = useCallback((data: any) => {
     if (data && data.url) {
@@ -312,7 +314,9 @@ export function TweetPerformance({ tweets, showTimeRange = false }: TweetPerform
                 }
               />
               <Tooltip
-                content={(props) => <CustomTooltip {...props} selectedMetric={selectedMetric} />}
+                content={(props) => (
+                  <CustomTooltip {...props} selectedMetric={selectedMetric} maxValues={maxValues} />
+                )}
               />
               <Legend />
               <Bar
@@ -321,6 +325,7 @@ export function TweetPerformance({ tweets, showTimeRange = false }: TweetPerform
                 name={metricLabels[selectedMetric]}
                 cursor="pointer"
                 onClick={handleBarClick}
+                data-parent={chartData}
               />
             </BarChart>
           </ResponsiveContainer>

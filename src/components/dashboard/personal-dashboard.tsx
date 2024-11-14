@@ -452,8 +452,8 @@ export function PersonalDashboard() {
             }} 
           />}
         </div>
-        <Metrics tweets={filteredTweets} prevPeriodTweets={prevPeriodTweets} />
         <TweetPerformance tweets={filteredTweets} />
+        <Metrics tweets={filteredTweets} prevPeriodTweets={prevPeriodTweets} />
       </main>
       <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
     </div>

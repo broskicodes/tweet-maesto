@@ -24,23 +24,37 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
+  // const loadHistory = async () => {
+  //   try {
+  //     const response = await fetch(`/api/chat/history?handle=${handle}&type=${ChatPromptType.AudienceInitialize}`);
+  //     if (response.ok) {
+  //       const history = await response.json();
+  //       setMessages(history.messages);
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to load chat history:", error);
+  //   }
+  // };
+  
+  // loadHistory();
 
-  const handleSubmit = useCallback(async () => {
-    if (!input.trim() || isLoading) return;
-    
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: input,
-      role: "user",
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setInput("");
+  const handleSubmit = useCallback(async (firstMessage: boolean = false) => {
+    let msgs = messages;
+
+    if (!firstMessage) {
+      if (!input.trim() || isLoading) return;
+      
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        content: input,
+        role: "user",
+      };
+
+      msgs = [...msgs, userMessage];
+      setMessages(prev => [...prev, userMessage]);
+      setInput("");
+    }
+
     setIsLoading(true);
 
     const assistantMessage: Message = {
@@ -55,7 +69,7 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [...messages, userMessage].map(({ content, role }) => ({ content, role })),
+          messages: msgs.map(({ content, role }) => ({ content, role })),
           type: ChatPromptType.AudienceInitialize,
           handle,
         }),
@@ -85,7 +99,19 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
     } finally {
       setIsLoading(false);
     }
-  }, [messages, input, isLoading]);
+  }, [messages, input, isLoading, handle]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      handleSubmit(true);
+    }
+  }, [isOpen, messages, handleSubmit]);
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -138,7 +164,7 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
                 }}
               />
               <Button 
-                onClick={handleSubmit}
+                onClick={() => handleSubmit(false)}
                 className="w-full"
                 disabled={isLoading}
               >

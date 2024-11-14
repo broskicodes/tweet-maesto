@@ -187,7 +187,8 @@ export async function POST(request: NextRequest) {
             })
             .from(tweets)
             .where(and(eq(tweets.handle_id, handle.id), gte(tweets.date, new Date("2024-10-01"))))
-            .orderBy(desc(tweets.date));
+            .orderBy(desc(tweets.date))
+            .limit(50);
 
           const prompt = `You are a social media marketing expert. You specialize in analyzing Twitter users and their tweets to provide insights on their marketing and growth strategy.
 

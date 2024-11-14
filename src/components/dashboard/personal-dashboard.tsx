@@ -256,7 +256,7 @@ export function PersonalDashboard() {
           setIsScraping(false);
           toast.success("New handle initialized!");
         }
-      }, 300000);
+      }, 60000);
     } catch (err) {
       toast.error("Failed to initialize new handle");
       setIsScraping(false);

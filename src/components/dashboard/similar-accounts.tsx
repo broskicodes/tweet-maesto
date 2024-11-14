@@ -134,16 +134,16 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
             ) : accounts.length === 0 || true ? (
               <div className="flex flex-col items-center justify-center h-full gap-4">
                 <p className="text-muted-foreground text-center">
-                  Please initialize this panel once your tweets have loaded.
+                  Let's craft your digital persona and determine your target audience
                 </p>
                 <Button 
                   onClick={() => {
-                    initialize();
+                    // initialize();
                     setIsChatOpen(true);
                   }} 
                   variant="default"
                 >
-                  Initialize
+                  Get Started
                 </Button>
               </div>
             ) : (

@@ -229,7 +229,7 @@ export async function POST(req: Request) {
 
         const embeddingResponse = await openai.embeddings.create({
           model: "text-embedding-3-small",
-          input: `${analysis.persona} target audience: ${analysis.target_audience}`,
+          input: analysis.target_audience,
           dimensions: 384,
         });
 

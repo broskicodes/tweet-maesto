@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Metric, Tweet, TwitterScrapeType } from "@/lib/types";
-import { TweetPerformance } from "./tweet-performance";
+import { TweetCharts } from "./tweet-charts";
 import { Metrics } from "./metrics";
 import { PopularTweets } from "./popular-tweets";
 import {
@@ -452,7 +452,7 @@ export function PersonalDashboard() {
             }} 
           />}
         </div>
-        <TweetPerformance tweets={filteredTweets} />
+        <TweetCharts tweets={filteredTweets} />
         <Metrics tweets={filteredTweets} prevPeriodTweets={prevPeriodTweets} />
       </main>
       <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />

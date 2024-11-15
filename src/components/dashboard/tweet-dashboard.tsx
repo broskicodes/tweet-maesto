@@ -5,7 +5,7 @@ import { AdvancedSearch } from "./advanced-search";
 import { PopularTweets } from "./popular-tweets";
 import { TweetHeatmap } from "./tweet-heatmap";
 import { TweetImporter } from "./tweet-importer";
-import { TweetPerformance } from "./tweet-performance";
+import { TweetCharts } from "./tweet-charts";
 import { Tweet } from "@/lib/types";
 import { useSession } from "next-auth/react";
 import { TweetDistribution } from "./tweet-distribution";
@@ -89,7 +89,7 @@ export function TweetDashboard() {
           </div>
         </div>
         <div className="grid grid-cols-1">
-          <TweetPerformance tweets={popularTweets} showTimeRange={true} />
+          <TweetCharts tweets={popularTweets} showTimeRange={true} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <TweetDistribution tweets={popularTweets} />

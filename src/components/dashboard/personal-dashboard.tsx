@@ -383,9 +383,9 @@ export function PersonalDashboard() {
           </div>
         </div>
         <div className="w-fit ml-auto flex flex-col space-y-2 items-end">
-          <Button variant="outline" onClick={doIt}>
+          {/* <Button variant="outline" onClick={doIt}>
             do it
-          </Button>
+          </Button> */}
           <div className="flex items-center gap-2 mt-4">
             {process.env.NEXT_PUBLIC_ENV_URL === "http://localhost:3000" && (
               <Button

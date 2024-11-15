@@ -2,8 +2,8 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 const testimonials = [
   {
-    alt: "@rexan_wong",
-    src: "https://unavatar.io/twitter/rexan_wong",
+    alt: "@asapdar",
+    src: "https://unavatar.io/twitter/asapdar",
   },
   {
     alt: "@mattiapomelli",

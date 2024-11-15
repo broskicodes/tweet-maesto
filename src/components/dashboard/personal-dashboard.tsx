@@ -199,6 +199,18 @@ export function PersonalDashboard() {
       setTimeout(async () => {
         setIsLoading(true);
 
+        if (type === TwitterScrapeType.Initialize) {
+          const response = await fetch("/api/profiles", {
+            method: "POST",
+            body: JSON.stringify({ 
+              handle: selectedHandle?.handle, 
+              all: false 
+            }),
+          });
+  
+          if (!response.ok) toast.error("Failed to initialize profile");
+        }
+
         const tweetsResponse = await fetch(`/api/tweets/${selectedHandle.handle}`);
         if (!tweetsResponse.ok) {
           toast.error("Failed to fetch new tweets");
@@ -245,10 +257,21 @@ export function PersonalDashboard() {
 
       if (!response.ok) throw new Error("Failed to initialize tweets");
 
+      if (!response.ok) toast.error("Failed to initialize profile");
       toast.success("Initializing tweets for new handle, this may take a few minutes...");
 
       // Refresh handles list after 5 minutes
       setTimeout(async () => {
+        const profileResponse = await fetch("/api/profiles", {
+          method: "POST",
+          body: JSON.stringify({ 
+            handle: selectedHandle?.handle, 
+            all: false 
+          }),
+        });
+
+        if (!profileResponse.ok) toast.error("Failed to initialize profile");
+
         const handlesResponse = await fetch("/api/handles");
         if (handlesResponse.ok) {
           const newHandles = await handlesResponse.json();

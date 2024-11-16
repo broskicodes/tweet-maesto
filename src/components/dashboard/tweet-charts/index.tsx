@@ -92,30 +92,30 @@ export function TweetCharts({ tweets, showTimeRange = false }: TweetPerformanceP
     })
     .sort((a, b) => a.date.getTime() - b.date.getTime()); // Sort by date
 
-  if (!session?.user?.subscribed) {
-    return (
-      <>
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Tweet Performance Overview</CardTitle>
-            <CardDescription>Analyze different metrics for your tweets</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[400px] flex flex-col items-center justify-center gap-4">
-              <p className="text-muted-foreground text-center">
-                Upgrade to access detailed tweet performance analytics
-              </p>
-              <Button onClick={() => setShowPricing(true)} variant="default">
-                <Zap className="mr-2 h-4 w-4" />
-                Get Access
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
-      </>
-    );
-  }
+  // if (!session?.user?.subscribed) {
+  //   return (
+  //     <>
+  //       <Card className="w-full">
+  //         <CardHeader>
+  //           <CardTitle>Tweet Performance Overview</CardTitle>
+  //           <CardDescription>Analyze different metrics for your tweets</CardDescription>
+  //         </CardHeader>
+  //         <CardContent>
+  //           <div className="h-[400px] flex flex-col items-center justify-center gap-4">
+  //             <p className="text-muted-foreground text-center">
+  //               Upgrade to access detailed tweet performance analytics
+  //             </p>
+  //             <Button onClick={() => setShowPricing(true)} variant="default">
+  //               <Zap className="mr-2 h-4 w-4" />
+  //               Get Access
+  //             </Button>
+  //           </div>
+  //         </CardContent>
+  //       </Card>
+  //       <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
+  //     </>
+  //   );
+  // }
 
   if (!tweets.length) {
     return (

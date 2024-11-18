@@ -86,7 +86,7 @@ const handler = NextAuth({
               pfp: profileData.profile_image_url as string,
             })
             .onConflictDoUpdate({
-              target: twitterHandles.handle,
+              target: twitterHandles.id,
               set: {
                 handle: profileData.username as string,
                 url: `https://x.com/${profileData.username}`,

@@ -131,7 +131,7 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
     } finally {
       setIsLoading(false);
     }
-  }, [messages, input, isLoading, handle, chatId, onComplete]);
+  }, [messages, input, isLoading, handle, chatId, onComplete, session?.user.id]);
 
   useEffect(() => {
     if (scrollRef.current) {

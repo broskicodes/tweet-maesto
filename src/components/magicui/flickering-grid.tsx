@@ -46,15 +46,15 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       if (color.startsWith("hsl")) {
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, 1, 1);
-        const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-        return `rgba(${r}, ${g}, ${b},`;
+        const data = ctx.getImageData(0, 0, 1, 1).data;
+        return `rgba(${data[0]}, ${data[1]}, ${data[2]},`;
       }
 
       // Handle other color formats (rgb, hex, etc.)
       ctx.fillStyle = color;
       ctx.fillRect(0, 0, 1, 1);
-      const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-      return `rgba(${r}, ${g}, ${b},`;
+      const data = ctx.getImageData(0, 0, 1, 1).data;
+      return `rgba(${data[0]}, ${data[1]}, ${data[2]},`;
     };
     return toRGBA(color);
   }, [color]);

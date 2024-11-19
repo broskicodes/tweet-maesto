@@ -5,42 +5,6 @@ interface Task {
 
 const completedTasks: Task[] = [
   {
-    text: "Purchased Builder Epidemic domain.",
-    dateRange: "2024-10-11",
-  },
-  {
-    text: "Created a simple landing page.",
-    dateRange: "2024-10-12",
-  },
-  {
-    text: `Launched [the blog](${process.env.NEXT_PUBLIC_ENV_URL}/blog) with first 2 articles`,
-    dateRange: "2024-10-13",
-  },
-  {
-    text: `More [blog posts](${process.env.NEXT_PUBLIC_ENV_URL}/blog).`,
-    dateRange: "2024-10-14 - 2024-10-17",
-  },
-  {
-    text: `Launched [the map](${process.env.NEXT_PUBLIC_ENV_URL}/map) and added first communities`,
-    dateRange: "2024-10-18",
-  },
-  {
-    text: "Lots of [tweets](https://x.com/braedenhall_).",
-    dateRange: "2024-10-18 - 2024-10-23",
-  },
-  {
-    text: `Launched [the leaderboard](${process.env.NEXT_PUBLIC_ENV_URL}/leaderboard).`,
-    dateRange: "2024-10-25",
-  },
-  {
-    text: "First 50 builders on the leaderboard.",
-    dateRange: "2024-10-26",
-  },
-  {
-    text: "Added daily cron job to update leaderboard.",
-    dateRange: "2024-10-28",
-  },
-  {
     text: `Launched Twitter [analytics dashboard](${process.env.NEXT_PUBLIC_ENV_URL}/dashboard).`,
     dateRange: "2024-10-30",
   },
@@ -49,12 +13,32 @@ const completedTasks: Task[] = [
     dateRange: "2024-10-31",
   },
   {
-    text: `Add advanced Twitter search with filters to the dashboard.`,
+    text: `Add advanced Twitter search to the dashboard.`,
     dateRange: "2024-11-01",
   },
   {
-    text: `Add [dashboard](${process.env.NEXT_PUBLIC_ENV_URL}/dashboard) for analyzing the latest viral tweets.`,
+    text: `Add new dashboard for analyzing the latest viral tweets.`,
     dateRange: "2024-11-03",
+  },
+  {
+    text: `Add tweet timing and content analysis to viral tweet dashboard.`,
+    dateRange: "2024-11-06",
+  },
+  {
+    text: `Add panel for viewing and filtering your most popular tweets.`,
+    dateRange: "2024-11-08",
+  },
+  {
+    text: `Scrape similar accounts for each twitter handle.`,
+    dateRange: "2024-11-10",
+  },
+  {
+    text: `Add chatbot for determining target audience and content strategy.`,
+    dateRange: "2024-11-13",
+  },
+  {
+    text: `Add chart for showing the distribution of your tweets over different impression ranges.`,
+    dateRange: "2024-11-15",
   },
 ];
 

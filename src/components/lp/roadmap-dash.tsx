@@ -112,6 +112,7 @@ const weeks = completedTasks.reduce(
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
+import Section from "../layout/section";
 
 export default function RoadmapDash() {
   const scrollViewportRef = useRef<HTMLDivElement>(null);
@@ -128,22 +129,12 @@ export default function RoadmapDash() {
   const currentWeekKey = getWeekKey(new Date());
 
   return (
-    <section
-      id="roadmap"
-      className="p-12 flex flex-col items-center justify-center w-full max-w-6xl mx-auto"
+    <Section
+      title="Roadmap"
+      subtitle="I ship *kinda* fast."
+      className="bg-gray-50"
     >
-      <div className="flex flex-col gap-3 items-center mb-8">
-        <div className="flex flex-col gap-3">
-          <span className="font-bold uppercase text-primary text-center">Roadmap</span>
-          <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl text-balance text-center">
-            I ship <span className="italic">kinda fast</span>
-          </h2>
-        </div>
-        <p className="text-lg text-muted-foreground text-balance max-w-lg text-center">
-          See current and upcoming features.
-        </p>
-      </div>
-      <ScrollArea className="w-full rounded-md">
+      <ScrollArea className="w-full rounded-md mt-8 px-8">
         <div ref={scrollViewportRef} className="flex gap-4 p-4 w-full overflow-x-auto">
           {Object.entries(weeks).map(([weekKey, week]) => (
             <div
@@ -209,6 +200,6 @@ export default function RoadmapDash() {
           </div>
         </div>
       </ScrollArea>
-    </section>
+    </Section>
   );
 }

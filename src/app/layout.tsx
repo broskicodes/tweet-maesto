@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     siteName: "Tweet Maestro",
     images: [
       {
-        url: "https://builderepidemic.com/images/dash-stats.png",
+        url: "https://builderepidemic.com/images/dashboard.png",
         width: 1200,
         height: 630,
         alt: "Tweet Maestro",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Tweet Maestro",
     description: "A tool to help you find and replicate content that is working on Twitter.",
-    images: ["https://builderepidemic.com/images/dash-stats.png"],
+    images: ["https://builderepidemic.com/images/dashboard.png"],
     creator: "@braedenhall_",
   },
 };

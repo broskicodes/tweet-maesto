@@ -154,7 +154,9 @@ export function PersonalDashboard() {
   useEffect(() => {
     const fetchHandles = async () => {
       try {
-        const response = await fetch(`/api/handles`);
+        const response = await fetch(`/api/handles`, {
+          cache: 'no-store'
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch handles");
         }

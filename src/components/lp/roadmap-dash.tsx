@@ -40,6 +40,10 @@ const completedTasks: Task[] = [
     text: `Add chart for showing the distribution of your tweets over different impression ranges.`,
     dateRange: "2024-11-15",
   },
+  {
+    text: `New landing page.`,
+    dateRange: "2024-11-19",
+  },
 ];
 
 const comingSoon: Omit<Task, "dateRange">[] = [

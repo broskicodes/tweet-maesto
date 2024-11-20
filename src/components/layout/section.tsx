@@ -33,7 +33,9 @@ export default function Section({
                 <ReactMarkdown
                   components={{
                     h3: ({ children }) => <span>{children}</span>,
-                    em: ({ children }) => <em>{children}</em>,
+                    em: ({ children }) => (
+                      <em className="text-primary">{children}</em>
+                    ),
                   }}
                 >
                   {subtitle}

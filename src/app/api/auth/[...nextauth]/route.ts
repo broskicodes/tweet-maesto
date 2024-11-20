@@ -4,6 +4,12 @@ import { TwitterScrapeType } from "@/lib/types";
 import { and, eq } from "drizzle-orm";
 import NextAuth from "next-auth";
 import TwitterProvider from "next-auth/providers/twitter";
+import { PostHog } from 'posthog-node'
+
+const posthog = new PostHog(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY!,
+  { host: process.env.NEXT_PUBLIC_POSTHOG_HOST }
+)
 
 const handler = NextAuth({
   providers: [
@@ -116,6 +122,18 @@ const handler = NextAuth({
             .returning({ id: users.id, created_at: users.created_at });
 
           console.log(`User upserted with ID:`, upsertedUserId);
+
+          posthog.identify({
+            distinctId: user.id,
+            properties: {
+              handle: profileData.username,
+            },
+          });
+    
+          posthog.capture({
+            distinctId: upsertedUserId.toString(),
+            event: 'sign-in-success'
+          });
 
           // Check if this is a new user
           if (createdAt && new Date().getTime() - createdAt.getTime() <= 30000) {

@@ -8,6 +8,7 @@ import { ArrowRight, Check, User, Zap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 
 export function PricingCard() {
   const [currentPrice, setCurrentPrice] = useState(9);
@@ -22,6 +23,7 @@ export function PricingCard() {
   const router = useRouter();
 
   const handleSignIn = async () => {
+    posthog.capture("sign-in-clicked");
     setIsLoading(true);
     await signIn("twitter");
     setIsLoading(false);

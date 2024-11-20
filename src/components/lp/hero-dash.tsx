@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import SocialProofUsers from "./social-proof-users";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import posthog from "posthog-js";
 
 export default function HeroDash() {
   const { data: session } = useSession();
@@ -18,7 +19,20 @@ export default function HeroDash() {
       </p>
       <div>
         <Button asChild size="lg" className="cursor-pointer text-lg px-12 py-6">
-          {session ? <Link href="/dashboard">Go to Dashboard</Link> : <Link href="#pricing">Get Started</Link>}
+          {session ? (
+            <Link href="/dashboard" onClick={() => posthog.capture("visit-dash")}>
+              Go to Dashboard
+            </Link>
+          ) : (
+            <Button
+              onClick={() => {
+                posthog.capture("sign-in-clicked");
+                signIn("twitter");
+              }}
+            >
+              Get Started
+            </Button>
+          )}
         </Button>
       </div>
       <div className="relative sm:mt-8">

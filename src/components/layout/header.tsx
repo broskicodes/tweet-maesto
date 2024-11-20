@@ -10,6 +10,10 @@ import { SIGNUP_EVENT } from "@/lib/types";
 
 const links = [
   {
+    title: "Pricing",
+    link: "/#pricing",
+  },
+  {
     title: "Dashboard",
     link: "/dashboard",
   },
@@ -22,12 +26,13 @@ const links = [
 export function Header() {
   const { status } = useSession();
 
-  const handleJoinEpidemic = () => {
-    posthog.capture("cta-clicked");
+  const handleSignIn = () => {
+    posthog.capture("sign-in-clicked");
     signIn("twitter");
   };
 
   const handleSignOut = () => {
+    posthog.capture("sign-out-clicked");
     signOut();
   };
 
@@ -53,7 +58,7 @@ export function Header() {
           {status === "authenticated" ? (
             <Button onClick={handleSignOut}>Sign Out</Button>
           ) : (
-            <Button onClick={handleJoinEpidemic}>Sign Up</Button>
+            <Button onClick={handleSignIn}>Sign Up</Button>
           )}
         </div>
       </div>
@@ -75,7 +80,7 @@ export function Header() {
                 Sign Out
               </Button>
             ) : (
-              <Button onClick={handleJoinEpidemic} size="lg" className="mt-2 w-full">
+              <Button onClick={handleSignIn} size="lg" className="mt-2 w-full">
                 Sign Up
               </Button>
             )}

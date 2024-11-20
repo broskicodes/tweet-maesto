@@ -22,14 +22,14 @@ const footerNavs = [
   {
     label: "Company",
     items: [
-      {
-        href: "/about",
-        name: "About Us",
-      },
-      {
-        href: "/blog",
-        name: "Blog",
-      },
+      // {
+      //   href: "/about",
+      //   name: "About Us",
+      // },
+      // {
+      //   href: "/blog",
+      //   name: "Blog",
+      // },
       {
         href: "mailto:hello@builderepidemic.com",
         name: "Contact",

@@ -8,7 +8,7 @@ import { PostHog } from 'posthog-node'
 
 const posthog = new PostHog(
   process.env.NEXT_PUBLIC_POSTHOG_KEY!,
-  { host: process.env.NEXT_PUBLIC_POSTHOG_HOST }
+  { host: process.env.NEXT_PUBLIC_POSTHOG_HOST, flushAt: 1, flushInterval: 1000 }
 )
 
 const handler = NextAuth({
@@ -131,10 +131,11 @@ const handler = NextAuth({
           });
     
           posthog.capture({
-            distinctId: upsertedUserId.toString(),
+            distinctId: user.id,
             event: 'sign-in-success'
           });
 
+          posthog.shutdown();
           // Check if this is a new user
           if (createdAt && new Date().getTime() - createdAt.getTime() <= 30000) {
             console.log("Initializing Twitter handle:", profileData.username);

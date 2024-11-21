@@ -15,7 +15,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 const posthog = new PostHog(
   process.env.NEXT_PUBLIC_POSTHOG_KEY!,
-  { host: process.env.NEXT_PUBLIC_POSTHOG_HOST }
+  { host: process.env.NEXT_PUBLIC_POSTHOG_HOST, flushAt: 1, flushInterval: 1000 }
 )
 
 export async function POST(request: Request) {
@@ -88,6 +88,8 @@ export async function POST(request: Request) {
             distinctId: user_id,
             event: "checkout-completed"
           });
+
+          posthog.shutdown();
       }
       break;
     default:

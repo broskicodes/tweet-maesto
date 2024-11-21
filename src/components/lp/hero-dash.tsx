@@ -12,10 +12,11 @@ export default function HeroDash() {
     <section className="container flex flex-col items-center gap-8 pb-28 pt-20 sm:gap-10">
       <SocialProofUsers />
       <h1 className="max-w-2xl text-center font-heading text-4xl font-semibold sm:text-5xl tracking-tight">
-        Grow your Twitter audience
+        Increase your reach on Twitter
       </h1>
       <p className="max-w-lg text-center text-lg text-muted-foreground sm:text-xl">
-        A set of tools to help you find and replicate the content that is working on Twitter.
+        Analyze trends and ideas working in your niche so you can make viral
+        content.
       </p>
       <div>
         <Button asChild size="lg" className="cursor-pointer text-lg px-12 py-6">

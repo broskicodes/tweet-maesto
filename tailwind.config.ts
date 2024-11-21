@@ -13,7 +13,7 @@ const config = {
   prefix: "",
   theme: {
   	container: {
-  		center: 'true',
+  		center: true,
   		padding: '2rem',
   		screens: {
   			'2xl': '1200px'
@@ -79,8 +79,6 @@ const config = {
   			shine: 'shine var(--duration) infinite linear',
   			pulse: 'pulse var(--duration) ease-out infinite',
   			rainbow: 'rainbow var(--speed, 2s) infinite linear',
-  			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
   		},
   		keyframes: {
   			'accordion-down': {
@@ -232,22 +230,6 @@ const config = {
   					'background-position': '200%'
   				}
   			},
-  			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
-  			},
-  			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
-  			}
   		},
   		fontFamily: {
   			sans: ["var(--font-sans)", ...fontFamily.sans],

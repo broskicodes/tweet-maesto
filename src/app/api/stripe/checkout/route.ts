@@ -26,6 +26,7 @@ export async function POST(request: Request) {
     mode: "payment",
     metadata: {
       user_id: user.id,
+      handle: user.handle,
     },
     // allow_promotion_codes: true,
   });

@@ -30,6 +30,7 @@ export function PricingCard() {
   };
 
   const handleGetAccess = async () => {
+    posthog.capture("checkout-started");
     setIsLoading(true);
     const response = await fetch("/api/stripe/checkout", {
       method: "POST",

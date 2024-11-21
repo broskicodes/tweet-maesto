@@ -22,6 +22,7 @@ import { RefreshCw, Download } from "lucide-react";
 import { toast } from "sonner";
 import { SimilarAccounts } from "./similar-accounts";
 import { PricingModal } from "@/components/layout/pricing-modal";
+import posthog from "posthog-js";
 
 interface DateRange {
   start: Date;
@@ -172,6 +173,9 @@ export function PersonalDashboard() {
 
   const handleTweetScrape = async (type: TwitterScrapeType) => {
     if (!session?.user?.subscribed) {
+      posthog.capture("upgrade-popup", {
+        trigger: "scrape-button"
+      });
       setShowPricing(true);
       return;
     }
@@ -240,6 +244,9 @@ export function PersonalDashboard() {
 
   const handleImportNewHandle = async () => {
     if (!session?.user?.subscribed) {
+      posthog.capture("upgrade-popup", {
+        trigger: "handle-import"
+      });
       setShowPricing(true);
       return;
     }
@@ -347,6 +354,9 @@ export function PersonalDashboard() {
                   const handle = handles.find((handle) => handle.handle === value);
 
                   if (!session?.user?.subscribed) {
+                    posthog.capture("upgrade-popup", {
+                      trigger: "handle-select"
+                    });
                     setShowPricing(true);
                     return;
                   }

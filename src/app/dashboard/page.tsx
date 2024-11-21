@@ -11,6 +11,7 @@ import { Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PricingModal } from "@/components/layout/pricing-modal";
+import posthog from "posthog-js";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
@@ -42,6 +43,9 @@ export default function DashboardPage() {
               className="w-full"
               onValueChange={(value) => {
                 if (value === "tweets" && !session?.user?.subscribed) {
+                  posthog.capture("upgrade-popup", {
+                    trigger: "viral-tab"
+                  });
                   setShowPricing(true);
                   return;
                 }

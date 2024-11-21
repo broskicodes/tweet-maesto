@@ -20,7 +20,7 @@ export default function HeroDash() {
       <div>
         <Button asChild size="lg" className="cursor-pointer text-lg px-12 py-6">
           {session ? (
-            <Link href="/dashboard" onClick={() => posthog.capture("visit-dash")}>
+            <Link href="/dashboard">
               Go to Dashboard
             </Link>
           ) : (

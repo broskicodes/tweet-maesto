@@ -8,6 +8,7 @@ import { Zap } from "lucide-react";
 import { PricingModal } from "@/components/layout/pricing-modal";
 import { toast } from "sonner";
 import { ChatSheet } from "@/components/layout/chat-sheet";
+import posthog from "posthog-js";
 
 interface SimilarAccount {
   handle: string;
@@ -107,7 +108,12 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
             <p className="text-muted-foreground text-center">
               Upgrade to discover accounts with similar audiences
             </p>
-            <Button onClick={() => setShowPricing(true)} variant="default">
+            <Button onClick={() => {
+              posthog.capture("upgrade-popup", {
+                trigger: "similar-accounts"
+              });
+              setShowPricing(true);
+            }} variant="default">
               <Zap className="mr-2 h-4 w-4" />
               Get Access
             </Button>

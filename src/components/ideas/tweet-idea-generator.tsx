@@ -127,15 +127,11 @@ export default function TweetIdeaGenerator() {
               </div>
               <div>
                 <h3 className="font-medium mb-1">2. Generate Ideas</h3>
-                <p className="text-sm text-muted-foreground">Our AI analyzes your inputs to generate tweet ideas tailored to your audience and style.</p>
+                <p className="text-sm text-muted-foreground">The AI will analyze your inputs to generate tweet ideas that may resonate with your audience.</p>
               </div>
               <div>
                 <h3 className="font-medium mb-1">3. Explore Results</h3>
-                <p className="text-sm text-muted-foreground">Each card shows a different tweet idea with its topic, type, hook, structure, and intended reward for your audience.</p>
-              </div>
-              <div>
-                <h3 className="font-medium mb-1">4. Expand for Details</h3>
-                <p className="text-sm text-muted-foreground">Click any card to see the full details of that tweet idea, including the suggested structure and viewer reward.</p>
+                <p className="text-sm text-muted-foreground">Each card shows a different possible topic for a tweet. Some information is provided about possible hooks, tweet structure, and ideal value for your audience.</p>
               </div>
             </div>
           </DialogContent>

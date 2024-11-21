@@ -18,12 +18,12 @@ const fontHeading = Instrument_Sans({
 
 export const metadata: Metadata = {
   title: "Tweet Maestro",
-  description: "A tool to help you find and replicate content that is working on Twitter.",
+  description: "Analyze Twitter trends and ideas working in your niche so you can make viral content.",
   openGraph: {
     siteName: "Tweet Maestro",
     images: [
       {
-        url: "https://builderepidemic.com/images/dashboard.png",
+        url: "https://tweetmaestro.com/images/dashboard.png",
         width: 1200,
         height: 630,
         alt: "Tweet Maestro",
@@ -33,8 +33,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Tweet Maestro",
-    description: "A tool to help you find and replicate content that is working on Twitter.",
-    images: ["https://builderepidemic.com/images/dashboard.png"],
+    description: "Analyze Twitter trends and ideas working in your niche so you can make viral content.",
+    images: ["https://tweetmaestro.com/images/dashboard.png"],
     creator: "@braedenhall_",
   },
 };

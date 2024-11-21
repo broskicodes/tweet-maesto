@@ -10,12 +10,16 @@ import { SIGNUP_EVENT } from "@/lib/types";
 
 const links = [
   {
-    title: "Pricing",
-    link: "/#pricing",
-  },
-  {
     title: "Dashboard",
     link: "/dashboard",
+  },
+  {
+    title: "Idea Generator",
+    link: "/ideas",
+  },
+  {
+    title: "Pricing",
+    link: "/#pricing",
   },
   // {
   //   title: "Blog",

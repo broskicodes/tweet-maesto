@@ -9,10 +9,10 @@ const footerNavs = [
         href: "/dashboard",
         name: "Dashboard",
       },
-      // {
-      //   href: "/leaderboard",
-      //   name: "Leaderboard",
-      // },
+      {
+        href: "/ideas",
+        name: "Idea Generator",
+      },
       // {
       //   href: "/map",
       //   name: "Map",

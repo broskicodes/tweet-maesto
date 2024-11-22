@@ -2,12 +2,12 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Tweet Maestro",
-  description: "A tool to help you find and replicate content that is working on Twitter.",
+  description: "Generate unique tweet ideas for your target audience.",
   openGraph: {
     siteName: "Tweet Maestro",
     images: [
       {
-        url: "https://builderepidemic.com/images/dash-stats.png",
+        url: "https://tweetmaestro.com/images/craft.png",
         width: 1200,
         height: 630,
         alt: "Tweet Maestro",
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Tweet Maestro",
-    description: "A tool to help you find and replicate content that is working on Twitter.",
-    images: ["https://builderepidemic.com/images/dash-stats.png"],
+    description: "Generate unique tweet ideas for your target audience.",
+    images: ["https://tweetmaestro.com/images/craft.png"],
     creator: "@braedenhall_",
   },
 };

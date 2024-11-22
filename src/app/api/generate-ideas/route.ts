@@ -48,11 +48,11 @@ export async function POST(req: Request) {
     const existingHandle = await db.query.twitterHandles.findFirst({
       where: eq(twitterHandles.handle, body.twitterHandle),
     })
-    
+
     if (!existingHandle) {
       await db.insert(freeloaders).values({
         handle: body.twitterHandle,
-      })
+      }).onConflictDoNothing();
     }
 
     const prompt = `Generate 3 tweet ideas for a Twitter user with the following details:

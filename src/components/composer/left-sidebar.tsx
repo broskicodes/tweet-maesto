@@ -1,10 +1,11 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarGroup, SidebarFooter } from "@/components/ui/sidebar";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
-import { Sparkles, LayoutDashboard, ExternalLink, LogOut } from "lucide-react";
+import { Sparkles, LayoutDashboard, ExternalLink, LogOut, ChevronUp, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +27,7 @@ const links = [
 export const LeftSidebar: FC = () => {
   const { data: session } = useSession();
   const isSubscribed = session?.user?.subscribed;
+  const [footerOpen, setFooterOpen] = useState(true);
 
   return (
     <div className="relative h-[calc(100vh)]">
@@ -71,36 +73,65 @@ export const LeftSidebar: FC = () => {
             {/* Add your left sidebar content here */}
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter className="border-t">
-          <Link href="/" className="flex items-center px-1">
-            <Logo scale={0.5} />
-            <span className="font-heading text-lg font-bold mt-1">Tweet Maestro</span>
-          </Link>
-          <nav className="flex flex-col gap-1 pb-2 px-2 -mt-2">
-            {links.map((link) => (
-              <Link
-                key={link.title}
-                href={link.link}
-                className="flex w-full cursor-pointer items-center rounded-md p-2 text-sm font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        <div className="relative">
+          {footerOpen && (
+            <div className="absolute -top-4 left-0 right-0 flex justify-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full bg-background shadow-sm border"
+                onClick={() => setFooterOpen(false)}
               >
-                {link.icon}
-                {link.title}
-              </Link>
-            ))}
-          </nav>
-          <div className="p-2">
-            {session && (
-              <Button 
-                variant={"default"}
-                className="w-full"
-                disabled={!!isSubscribed}
-              >
-                <Sparkles className="mr-2 h-4 w-4" />
-                {isSubscribed ? 'Thanks for Supporting!' : 'Upgrade to Pro'}
+                <ChevronDown className="h-4 w-4" />
               </Button>
-            )}
+            </div>
+          )}
+          {!footerOpen && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute -top-8 left-1/2 -translate-x-1/2 h-8 w-8 rounded-full bg-background shadow-sm border"
+              onClick={() => setFooterOpen(true)}
+            >
+              <ChevronUp className="h-4 w-4" />
+            </Button>
+          )}
+          <div className={cn(
+            "transition-all duration-200 ease-in-out border-t",
+            footerOpen ? "h-auto opacity-100" : "h-0 opacity-0 overflow-hidden"
+          )}>
+            <SidebarFooter>
+              <Link href="/" className="flex items-center px-1">
+                <Logo scale={0.5} />
+                <span className="font-heading text-lg font-bold mt-1">Tweet Maestro</span>
+              </Link>
+              <nav className="flex flex-col gap-1 pb-2 px-2 -mt-2">
+                {links.map((link) => (
+                  <Link
+                    key={link.title}
+                    href={link.link}
+                    className="flex w-full cursor-pointer items-center rounded-md p-2 text-sm font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  >
+                    {link.icon}
+                    {link.title}
+                  </Link>
+                ))}
+              </nav>
+              <div className="p-2">
+                {session && (
+                  <Button 
+                    variant={"default"}
+                    className="w-full"
+                    disabled={!!isSubscribed}
+                  >
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    {isSubscribed ? 'Thanks for Supporting!' : 'Upgrade to Pro'}
+                  </Button>
+                )}
+              </div>
+            </SidebarFooter>
           </div>
-        </SidebarFooter>
+        </div>
       </Sidebar>
     </div>
   );

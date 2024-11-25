@@ -27,6 +27,7 @@ const handler = NextAuth({
         const [twitterHandle] = await db
           .select({
             handle: twitterHandles.handle,
+            verified: twitterHandles.verified,
           })
           .from(twitterHandles)
           .where(eq(twitterHandles.id, BigInt(userId)))
@@ -59,6 +60,8 @@ const handler = NextAuth({
           session.user.id = dbUser.id;
           // @ts-ignore
           session.user.handle = twitterHandle.handle;
+          // @ts-ignore
+          session.user.verified = twitterHandle.verified;
           // @ts-ignore
           session.user.subscribed = userSubscription?.active || false;
           // @ts-ignore

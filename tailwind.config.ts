@@ -53,6 +53,16 @@ const config = {
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
+  			},
+  			sidebar: {
+  				DEFAULT: 'hsl(var(--sidebar-background))',
+  				foreground: 'hsl(var(--sidebar-foreground))',
+  				primary: 'hsl(var(--sidebar-primary))',
+  				'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+  				accent: 'hsl(var(--sidebar-accent))',
+  				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+  				border: 'hsl(var(--sidebar-border))',
+  				ring: 'hsl(var(--sidebar-ring))'
   			}
   		},
   		borderRadius: {
@@ -78,7 +88,7 @@ const config = {
   			'background-position-spin': 'background-position-spin 3000ms infinite alternate',
   			shine: 'shine var(--duration) infinite linear',
   			pulse: 'pulse var(--duration) ease-out infinite',
-  			rainbow: 'rainbow var(--speed, 2s) infinite linear',
+  			rainbow: 'rainbow var(--speed, 2s) infinite linear'
   		},
   		keyframes: {
   			'accordion-down': {
@@ -229,7 +239,7 @@ const config = {
   				'100%': {
   					'background-position': '200%'
   				}
-  			},
+  			}
   		},
   		fontFamily: {
   			sans: ["var(--font-sans)", ...fontFamily.sans],

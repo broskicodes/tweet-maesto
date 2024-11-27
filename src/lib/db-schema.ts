@@ -236,3 +236,17 @@ export const freeloaders = pgTable("freeloaders", {
   handle: text("handle").notNull().unique(),
   created_at: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const tweetDraftStatus = pgEnum("tweet_draft_status", ["draft", "scheduled", "posted"]);
+
+export const tweetDrafts = pgTable("tweet_drafts", {
+  id: uuid("id").primaryKey().defaultRandom().notNull(),
+  user_id: uuid("user_id")
+    .references(() => users.id)
+    .notNull(),
+  tweet_boxes: jsonb("tweet_boxes").notNull(),
+  status: tweetDraftStatus("status").notNull(),
+  created_at: timestamp("created_at").defaultNow().notNull(),
+  updated_at: timestamp("updated_at").defaultNow().notNull(),
+  deleted_at: timestamp("deleted_at"),
+});

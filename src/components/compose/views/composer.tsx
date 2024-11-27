@@ -1,39 +1,95 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useSession } from "next-auth/react";
 import { Verified, ListPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-interface TweetBox {
-  id: string;
-  content: string;
-}
+import { TweetBox, useDraftsStore } from "@/store/drafts";
 
 const MAX_CHARS = 280;
 
 export default function Composer() {
   const { data: session } = useSession();
-  const [tweetBoxes, setTweetBoxes] = useState<TweetBox[]>([{ id: "1", content: "" }]);
+  const { activeDraft, isLoading, isFetched, loadDrafts, updateDraft } = useDraftsStore();
+  const [localContent, setLocalContent] = useState<TweetBox[]>([{ id: "1", content: "" }]);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Only sync from activeDraft on initial load or when switching drafts
+  useEffect(() => {
+    if (session?.user?.id && !isFetched) {
+      loadDrafts(session.user.id);
+    }
+  }, [session?.user?.id, isFetched, loadDrafts]);
+
+  // Only update local content when activeDraft changes (switching drafts)
+  useEffect(() => {
+    if (activeDraft && !hasChanges) {
+      // Don't override local changes
+      setLocalContent(activeDraft.tweet_boxes);
+    }
+  }, [activeDraft?.id]); // Only depend on draft ID to prevent unnecessary updates
 
   const handleContentChange = (id: string, newContent: string) => {
-    setTweetBoxes((boxes) =>
-      boxes.map((box) => (box.id === id ? { ...box, content: newContent } : box)),
+    setLocalContent((prev) =>
+      prev.map((box) => (box.id === id ? { ...box, content: newContent } : box)),
     );
+    setHasChanges(true);
   };
 
   const addNewBox = (afterId: string) => {
     const newId = Date.now().toString();
-    setTweetBoxes((boxes) => {
-      const index = boxes.findIndex((box) => box.id === afterId);
-      const newBoxes = [...boxes];
+    setLocalContent((prev) => {
+      const index = prev.findIndex((box) => box.id === afterId);
+      const newBoxes = [...prev];
       newBoxes.splice(index + 1, 0, { id: newId, content: "" });
       return newBoxes;
     });
+    setHasChanges(true);
   };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (hasChanges && activeDraft && session?.user?.id) {
+        updateDraft(session.user.id, activeDraft.id, localContent);
+        setHasChanges(false);
+      }
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, [hasChanges, activeDraft?.id, localContent, session?.user?.id, updateDraft]);
+
+  // Save on unmount if there are pending changes
+  useEffect(() => {
+    return () => {
+      if (hasChanges && activeDraft && session?.user?.id) {
+        updateDraft(session.user.id, activeDraft.id, localContent);
+      }
+    };
+  }, [hasChanges, activeDraft?.id, localContent, session?.user?.id, updateDraft]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center gap-4 w-full py-4 px-4">
+        <div className="w-full max-w-xl bg-card rounded-lg border shadow-sm p-4 animate-pulse">
+          <div className="flex items-center mb-2">
+            <div className="h-8 w-8 rounded-full bg-muted"></div>
+            <div className="flex-1 ml-2 space-y-2">
+              <div className="h-4 w-24 bg-muted rounded"></div>
+              <div className="h-4 w-32 bg-muted rounded"></div>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="h-4 bg-muted rounded w-3/4"></div>
+            <div className="h-4 bg-muted rounded w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center gap-4 w-full py-4 px-4">
-      {tweetBoxes.map((box, index) => (
+      {localContent.map((box, index) => (
         <div key={box.id} className="w-full max-w-xl bg-card rounded-lg border shadow-sm p-4">
           <div className="flex items-center mb-2">
             <Avatar className="h-8 w-8">

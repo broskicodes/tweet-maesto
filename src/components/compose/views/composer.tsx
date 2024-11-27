@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useSession } from "next-auth/react";
-import { Verified, ListPlus } from "lucide-react";
+import { Verified, ListPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TweetBox, useDraftsStore } from "@/store/drafts";
 
@@ -13,6 +13,7 @@ export default function Composer() {
   const { activeDraft, isLoading, isFetched, loadDrafts, updateDraft } = useDraftsStore();
   const [localContent, setLocalContent] = useState<TweetBox[]>([{ id: "1", content: "" }]);
   const [hasChanges, setHasChanges] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   // Only sync from activeDraft on initial load or when switching drafts
   useEffect(() => {
@@ -45,6 +46,25 @@ export default function Composer() {
       return newBoxes;
     });
     setHasChanges(true);
+  };
+
+  const handleDelete = (id: string) => {
+    if (deleteConfirm === id) {
+      setLocalContent(prev => {
+        const newContent = prev.filter(box => box.id !== id);
+        // If array would be empty, add a new empty box
+        if (newContent.length === 0) {
+          return [{ id: Date.now().toString(), content: "" }];
+        }
+        return newContent;
+      });
+      setDeleteConfirm(null);
+      setHasChanges(true);
+    } else {
+      setDeleteConfirm(id);
+      // Reset confirm state after 3 seconds
+      setTimeout(() => setDeleteConfirm(null), 3000);
+    }
   };
 
   useEffect(() => {
@@ -96,15 +116,26 @@ export default function Composer() {
               <AvatarImage src={`https://unavatar.io/twitter/${session?.user?.handle}`} />
               <AvatarFallback>{session?.user?.name?.[0]}</AvatarFallback>
             </Avatar>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-1">
               <span className="text-base font-medium ml-2">{session?.user?.name}</span>
               {session?.user?.verified && (
                 <Verified className="h-5 w-5 text-background [&>path]:fill-primary" />
               )}
-              <span className="text-base text-muted-foreground ml-auto">
+              <span className="text-base text-muted-foreground">
                 @{session?.user?.handle}
               </span>
             </div>
+            <Button
+              variant="ghost"
+              size={deleteConfirm === box.id ? "default" : "icon"}
+              className={`rounded-full ${
+                deleteConfirm === box.id ? 'text-destructive hover:text-destructive' : ''
+              }`}
+              onClick={() => handleDelete(box.id)}
+            >
+              {deleteConfirm !== box.id && <X className="h-4 w-4" />}
+              {deleteConfirm === box.id && <span className="text-xs font-medium">Confirm</span>}
+            </Button>
           </div>
           <textarea
             className="w-full resize-none bg-transparent border-none focus:outline-none focus:ring-0 p-0"

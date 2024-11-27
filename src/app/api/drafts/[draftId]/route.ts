@@ -24,3 +24,30 @@ export async function PUT(req: Request, { params }: { params: { draftId: string 
 
   return NextResponse.json(updated[0]);
 }
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: { draftId: string } }
+) {
+  const { user_id } = await req.json();
+  if (!user_id) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  const deleted = await db
+    .update(tweetDrafts)
+    .set({
+      deleted_at: new Date(),
+    })
+    .where(and(
+      eq(tweetDrafts.id, params.draftId),
+      eq(tweetDrafts.user_id, user_id)
+    ))
+    .returning();
+
+  if (!deleted.length) {
+    return new NextResponse("Draft not found", { status: 404 });
+  }
+
+  return NextResponse.json(deleted[0]);
+}

@@ -26,6 +26,7 @@ interface DraftsState {
   saveDraft: (userId: string, tweetBoxes: TweetBox[]) => Promise<void>;
   updateDraft: (userId: string, draftId: string, tweetBoxes: TweetBox[]) => Promise<void>;
   createDraft: (userId: string, tweetBoxes: TweetBox[]) => Promise<void>;
+  deleteDraft: (userId: string, draftId: string) => Promise<void>;
 }
 
 export const useDraftsStore = create<DraftsState>((set, get) => ({
@@ -116,6 +117,29 @@ export const useDraftsStore = create<DraftsState>((set, get) => ({
       await updateDraft(userId, activeDraft.id, tweetBoxes);
     } else {
       await createDraft(userId, tweetBoxes);
+    }
+  },
+
+  deleteDraft: async (userId, draftId) => {
+    const { drafts, setDrafts, activeDraft, setActiveDraft } = get();
+    try {
+      const res = await fetch(`/api/drafts/${draftId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId }),
+      });
+      
+      if (res.ok) {
+        const newDrafts = drafts.filter(d => d.id !== draftId);
+        setDrafts(newDrafts);
+        
+        // If we deleted the active draft, set the first available draft as active
+        if (activeDraft?.id === draftId) {
+          setActiveDraft(newDrafts[0] || null);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to delete draft:', error);
     }
   },
 }));

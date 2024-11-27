@@ -19,4 +19,4 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
       </DialogContent>
     </Dialog>
   );
-} 
+}

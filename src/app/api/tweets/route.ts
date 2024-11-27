@@ -61,9 +61,7 @@ export async function GET(request: Request) {
     });
 
     const results = await Promise.all(tweetPromises);
-    const tweetsByHandle = Object.fromEntries(
-      results.map(({ handle, data }) => [handle, data])
-    );
+    const tweetsByHandle = Object.fromEntries(results.map(({ handle, data }) => [handle, data]));
 
     return NextResponse.json(tweetsByHandle);
   } catch (error) {

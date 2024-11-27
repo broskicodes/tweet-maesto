@@ -60,18 +60,18 @@ export function TweetRangeModal({
       if (filters.minLikes && tweet.like_count < parseInt(filters.minLikes)) return false;
       if (filters.minComments && tweet.reply_count < parseInt(filters.minComments)) return false;
       if (filters.minRetweets && tweet.retweet_count < parseInt(filters.minRetweets)) return false;
-      
+
       if (filters.dateRange !== "all") {
         const tweetDate = new Date(tweet.date);
         const now = new Date();
         const diff = now.getTime() - tweetDate.getTime();
         const days = diff / (1000 * 60 * 60 * 24);
-        
+
         if (filters.dateRange === "24h" && days > 1) return false;
         if (filters.dateRange === "7d" && days > 7) return false;
         if (filters.dateRange === "28d" && days > 28) return false;
       }
-      
+
       return true;
     });
   }, [tweets, filters]);
@@ -112,41 +112,41 @@ export function TweetRangeModal({
           <div className="flex items-center gap-2">
             <Label className="whitespace-nowrap font-bold">Sort By:</Label>
             <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortMetric)}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="impressions">
-                <div className="flex items-center">
-                  <BarChart2 className="w-4 h-4 mr-2" />
-                  Impressions
-                </div>
-              </SelectItem>
-              <SelectItem value="likes">
-                <div className="flex items-center">
-                  <Heart className="w-4 h-4 mr-2" />
-                  Likes
-                </div>
-              </SelectItem>
-              <SelectItem value="comments">
-                <div className="flex items-center">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Comments
-                </div>
-              </SelectItem>
-              <SelectItem value="bookmarks">
-                <div className="flex items-center">
-                  <Bookmark className="w-4 h-4 mr-2" />
-                  Bookmarks
-                </div>
-              </SelectItem>
-              <SelectItem value="retweets">
-                <div className="flex items-center">
-                  <Repeat className="w-4 h-4 mr-2" />
-                  Retweets
-                </div>
-              </SelectItem>
-            </SelectContent>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="impressions">
+                  <div className="flex items-center">
+                    <BarChart2 className="w-4 h-4 mr-2" />
+                    Impressions
+                  </div>
+                </SelectItem>
+                <SelectItem value="likes">
+                  <div className="flex items-center">
+                    <Heart className="w-4 h-4 mr-2" />
+                    Likes
+                  </div>
+                </SelectItem>
+                <SelectItem value="comments">
+                  <div className="flex items-center">
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Comments
+                  </div>
+                </SelectItem>
+                <SelectItem value="bookmarks">
+                  <div className="flex items-center">
+                    <Bookmark className="w-4 h-4 mr-2" />
+                    Bookmarks
+                  </div>
+                </SelectItem>
+                <SelectItem value="retweets">
+                  <div className="flex items-center">
+                    <Repeat className="w-4 h-4 mr-2" />
+                    Retweets
+                  </div>
+                </SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </div>
@@ -154,4 +154,4 @@ export function TweetRangeModal({
       </DialogContent>
     </Dialog>
   );
-} 
+}

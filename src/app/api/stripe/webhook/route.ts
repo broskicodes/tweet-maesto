@@ -2,7 +2,7 @@ import { subscriptions, users } from "@/lib/db-schema";
 import { db } from "@/lib/drizzle";
 import { eq } from "drizzle-orm";
 import Stripe from "stripe";
-import { PostHog } from 'posthog-node'
+import { PostHog } from "posthog-node";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-10-28.acacia",
@@ -13,10 +13,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   },
 });
 
-const posthog = new PostHog(
-  process.env.NEXT_PUBLIC_POSTHOG_KEY!,
-  { host: process.env.NEXT_PUBLIC_POSTHOG_HOST, flushAt: 1, flushInterval: 1000 }
-)
+const posthog = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+  host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+  flushAt: 1,
+  flushInterval: 1000,
+});
 
 export async function POST(request: Request) {
   const payload = await request.text();
@@ -76,20 +77,20 @@ export async function POST(request: Request) {
 
         // console.log(sessionWithLineItems.customer_details?.email, sessionWithLineItems.customer_email);
 
-          posthog.identify({
-            distinctId: user_id,
-            properties: {
-              handle: sessionWithLineItems.metadata?.handle,
-              email: sessionWithLineItems.customer_email,
-            },
-          });
+        posthog.identify({
+          distinctId: user_id,
+          properties: {
+            handle: sessionWithLineItems.metadata?.handle,
+            email: sessionWithLineItems.customer_email,
+          },
+        });
 
-          posthog.capture({
-            distinctId: user_id,
-            event: "checkout-completed"
-          });
+        posthog.capture({
+          distinctId: user_id,
+          event: "checkout-completed",
+        });
 
-          posthog.shutdown();
+        posthog.shutdown();
       }
       break;
     default:

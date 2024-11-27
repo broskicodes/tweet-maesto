@@ -15,15 +15,12 @@ export default function HeroDash() {
         Increase your reach on Twitter
       </h1>
       <p className="max-w-lg text-center text-lg text-muted-foreground sm:text-xl">
-        Analyze trends and ideas working in your niche so you can make viral
-        content.
+        Analyze trends and ideas working in your niche so you can make viral content.
       </p>
       <div>
         <Button asChild size="lg" className="cursor-pointer text-lg px-12 py-6">
           {session ? (
-            <Link href="/dashboard">
-              Go to Dashboard
-            </Link>
+            <Link href="/dashboard">Go to Dashboard</Link>
           ) : (
             <Button
               onClick={() => {

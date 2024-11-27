@@ -7,11 +7,9 @@ export const RightSidebar: FC = () => {
       <Sidebar side="right" collapsible="offcanvas" className="!absolute !h-full">
         <SidebarHeader className="h-14 border-b" />
         <SidebarContent>
-          <SidebarGroup>
-            {/* Add your right sidebar content here */}
-          </SidebarGroup>
+          <SidebarGroup>{/* Add your right sidebar content here */}</SidebarGroup>
         </SidebarContent>
       </Sidebar>
     </div>
   );
-}; 
+};

@@ -2,7 +2,18 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Eye, ThumbsUp, Bookmark, MessageCircle, Repeat, BarChart3Icon, Zap, BarChart2Icon, BarChartIcon, BarChart4Icon } from "lucide-react";
+import {
+  Eye,
+  ThumbsUp,
+  Bookmark,
+  MessageCircle,
+  Repeat,
+  BarChart3Icon,
+  Zap,
+  BarChart2Icon,
+  BarChartIcon,
+  BarChart4Icon,
+} from "lucide-react";
 import { Metric, metricLabels, Tweet } from "@/lib/types";
 import { useState } from "react";
 import { format } from "date-fns";
@@ -106,12 +117,15 @@ export function TweetCharts({ tweets, showTimeRange = false }: TweetPerformanceP
               <p className="text-muted-foreground text-center">
                 Upgrade to access detailed tweet performance analytics
               </p>
-              <Button onClick={() => {
-                posthog.capture("upgrade-popup", {
-                  trigger: "tweet-charts"
-                });
-                setShowPricing(true);
-              }} variant="default">
+              <Button
+                onClick={() => {
+                  posthog.capture("upgrade-popup", {
+                    trigger: "tweet-charts",
+                  });
+                  setShowPricing(true);
+                }}
+                variant="default"
+              >
                 <Zap className="mr-2 h-4 w-4" />
                 Get Access
               </Button>

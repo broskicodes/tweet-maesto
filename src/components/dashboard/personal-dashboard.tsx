@@ -156,7 +156,7 @@ export function PersonalDashboard() {
     const fetchHandles = async () => {
       try {
         const response = await fetch(`/api/handles`, {
-          cache: 'no-store'
+          cache: "no-store",
         });
         if (!response.ok) {
           throw new Error("Failed to fetch handles");
@@ -174,7 +174,7 @@ export function PersonalDashboard() {
   const handleTweetScrape = async (type: TwitterScrapeType) => {
     if (!session?.user?.subscribed) {
       posthog.capture("upgrade-popup", {
-        trigger: "scrape-button"
+        trigger: "scrape-button",
       });
       setShowPricing(true);
       return;
@@ -208,12 +208,12 @@ export function PersonalDashboard() {
         if (type === TwitterScrapeType.Initialize) {
           const response = await fetch("/api/profiles", {
             method: "POST",
-            body: JSON.stringify({ 
-              handle: selectedHandle?.handle, 
-              all: false 
+            body: JSON.stringify({
+              handle: selectedHandle?.handle,
+              all: false,
             }),
           });
-  
+
           if (!response.ok) toast.error("Failed to initialize profile");
         }
 
@@ -245,7 +245,7 @@ export function PersonalDashboard() {
   const handleImportNewHandle = async () => {
     if (!session?.user?.subscribed) {
       posthog.capture("upgrade-popup", {
-        trigger: "handle-import"
+        trigger: "handle-import",
       });
       setShowPricing(true);
       return;
@@ -273,9 +273,9 @@ export function PersonalDashboard() {
       setTimeout(async () => {
         const profileResponse = await fetch("/api/profiles", {
           method: "POST",
-          body: JSON.stringify({ 
-            handle: selectedHandle?.handle, 
-            all: false 
+          body: JSON.stringify({
+            handle: selectedHandle?.handle,
+            all: false,
           }),
         });
 
@@ -298,9 +298,9 @@ export function PersonalDashboard() {
   const doIt = async () => {
     const response = await fetch("/api/profiles", {
       method: "POST",
-      body: JSON.stringify({ 
-        handle: selectedHandle?.handle, 
-        all: true 
+      body: JSON.stringify({
+        handle: selectedHandle?.handle,
+        all: true,
       }),
     });
 
@@ -355,7 +355,7 @@ export function PersonalDashboard() {
 
                   if (!session?.user?.subscribed) {
                     posthog.capture("upgrade-popup", {
-                      trigger: "handle-select"
+                      trigger: "handle-select",
                     });
                     setShowPricing(true);
                     return;
@@ -473,19 +473,23 @@ export function PersonalDashboard() {
       <main className="container mx-auto px-4 pt-2 pb-8 flex flex-col gap-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <PopularTweets tweets={filteredTweets} />
-          {selectedHandle && <SimilarAccounts 
-            handle={selectedHandle.handle} 
-            onAccountSelect={(handle) => {
-              const newHandle = handles.find(h => h.handle === handle);
-              setSelectedHandle(
-                newHandle ? {
-                  handle: newHandle.handle,
-                  pfp: `https://unavatar.io/twitter/${newHandle.handle}`,
-                  url: `https://x.com/${newHandle.handle}`
-                } : null
-              );
-            }} 
-          />}
+          {selectedHandle && (
+            <SimilarAccounts
+              handle={selectedHandle.handle}
+              onAccountSelect={(handle) => {
+                const newHandle = handles.find((h) => h.handle === handle);
+                setSelectedHandle(
+                  newHandle
+                    ? {
+                        handle: newHandle.handle,
+                        pfp: `https://unavatar.io/twitter/${newHandle.handle}`,
+                        url: `https://x.com/${newHandle.handle}`,
+                      }
+                    : null,
+                );
+              }}
+            />
+          )}
         </div>
         <TweetCharts tweets={filteredTweets} />
         <Metrics tweets={filteredTweets} prevPeriodTweets={prevPeriodTweets} />

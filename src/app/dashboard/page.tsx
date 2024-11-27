@@ -26,9 +26,7 @@ export default function DashboardPage() {
         {!session && (
           <div className="flex justify-center items-center h-full flex-1">
             <div className="flex flex-col items-center gap-4 h-full justify-center">
-              <span className="text-lg font-semibold">
-                {"You're not signed in."}
-              </span>
+              <span className="text-lg font-semibold">{"You're not signed in."}</span>
               <Button onClick={() => router.push("/")}>
                 <Home className="mr-2 h-5 w-5" />
                 Go to Home
@@ -38,13 +36,13 @@ export default function DashboardPage() {
         )}
         {session && (
           <div className="container mx-auto py-6">
-            <Tabs 
+            <Tabs
               value={activeTab}
               className="w-full"
               onValueChange={(value) => {
                 if (value === "tweets" && !session?.user?.subscribed) {
                   posthog.capture("upgrade-popup", {
-                    trigger: "viral-tab"
+                    trigger: "viral-tab",
                   });
                   setShowPricing(true);
                   return;

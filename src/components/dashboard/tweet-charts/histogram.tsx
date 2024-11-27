@@ -12,11 +12,11 @@ interface HistogramProps {
 }
 
 export function calculateStats(numbers: number[]) {
-    const mean = numbers.reduce((a, b) => a + b, 0) / numbers.length;
-    const variance = numbers.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / numbers.length;
-    const stdDev = Math.sqrt(variance);
-    return { mean, stdDev };
-  } 
+  const mean = numbers.reduce((a, b) => a + b, 0) / numbers.length;
+  const variance = numbers.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / numbers.length;
+  const stdDev = Math.sqrt(variance);
+  return { mean, stdDev };
+}
 
 function formatNumber(num: number): string {
   if (num >= 1000000) {
@@ -29,29 +29,29 @@ function formatNumber(num: number): string {
 }
 
 function createLogBins(values: number[], numBins = 7) {
-  const nonZeroValues = values.filter(v => v > 0);
+  const nonZeroValues = values.filter((v) => v > 0);
   const minValue = Math.min(...nonZeroValues);
   const maxValue = Math.max(...nonZeroValues);
-  
+
   const logMin = Math.log(Math.max(minValue, 1));
   const logMax = Math.log(maxValue);
   const logStep = (logMax - logMin) / numBins;
 
   const bins = Array.from({ length: numBins }, (_, i) => {
-    const binStartLog = logMin + (i * logStep);
-    const binEndLog = logMin + ((i + 1) * logStep);
+    const binStartLog = logMin + i * logStep;
+    const binEndLog = logMin + (i + 1) * logStep;
     return {
       binStart: Math.exp(binStartLog),
       binEnd: Math.exp(binEndLog),
       count: 0,
       tweetIds: new Set<string>(),
-      label: `${formatNumber(Math.round(Math.exp(binStartLog)))} - ${formatNumber(Math.round(Math.exp(binEndLog)))}`
+      label: `${formatNumber(Math.round(Math.exp(binStartLog)))} - ${formatNumber(Math.round(Math.exp(binEndLog)))}`,
     };
   });
 
-  values.forEach(value => {
+  values.forEach((value) => {
     if (value <= 0) return;
-    const binIndex = bins.findIndex(bin => value <= bin.binEnd);
+    const binIndex = bins.findIndex((bin) => value <= bin.binEnd);
     if (binIndex >= 0) bins[binIndex].count++;
   });
 
@@ -66,20 +66,20 @@ export function ViewsHistogram({ data, tweets }: HistogramProps) {
   } | null>(null);
 
   const histogramData = useMemo(() => {
-    const values = data.map(d => ({ value: d[selectedMetric], id: d.id }));
-    const stats = calculateStats(values.map(v => v.value));
-    
-    const bins = createLogBins(values.map(v => v.value));
-    
+    const values = data.map((d) => ({ value: d[selectedMetric], id: d.id }));
+    const stats = calculateStats(values.map((v) => v.value));
+
+    const bins = createLogBins(values.map((v) => v.value));
+
     values.forEach(({ value, id }) => {
       if (value <= 0) return;
-      const binIndex = bins.findIndex(bin => value <= bin.binEnd);
+      const binIndex = bins.findIndex((bin) => value <= bin.binEnd);
       if (binIndex >= 0) {
         if (!bins[binIndex].tweetIds) bins[binIndex].tweetIds = new Set();
         bins[binIndex].tweetIds.add(id);
       }
     });
-    
+
     return { bins, stats };
   }, [data, selectedMetric]);
 
@@ -88,8 +88,7 @@ export function ViewsHistogram({ data, tweets }: HistogramProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="text-lg font-medium">
-            {selectedMetric.charAt(0).toUpperCase() +
-              selectedMetric.slice(1).replaceAll("_", " ")}
+            {selectedMetric.charAt(0).toUpperCase() + selectedMetric.slice(1).replaceAll("_", " ")}
           </div>
           <div className="flex gap-4 text-sm text-muted-foreground font-medium">
             <span>μ = {formatNumber(Math.round(histogramData.stats.mean))}</span>
@@ -117,8 +116,8 @@ export function ViewsHistogram({ data, tweets }: HistogramProps) {
       <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={histogramData.bins}>
-            <XAxis 
-              dataKey="label" 
+            <XAxis
+              dataKey="label"
               angle={-45}
               textAnchor="end"
               height={70}
@@ -126,7 +125,7 @@ export function ViewsHistogram({ data, tweets }: HistogramProps) {
               fontSize={12}
             />
             <YAxis />
-            <Tooltip 
+            <Tooltip
               content={({ payload, label }) => {
                 if (!payload?.length) return null;
                 return (
@@ -138,7 +137,9 @@ export function ViewsHistogram({ data, tweets }: HistogramProps) {
                       <div className="grid gap-1 text-muted-foreground">
                         <div className="flex justify-between gap-8">
                           <span>Count:</span>
-                          <span className="font-medium text-foreground">{formatNumber(payload[0].value as number)}</span>
+                          <span className="font-medium text-foreground">
+                            {formatNumber(payload[0].value as number)}
+                          </span>
                         </div>
                         <div className="flex justify-between gap-8">
                           <span>Range:</span>
@@ -150,12 +151,12 @@ export function ViewsHistogram({ data, tweets }: HistogramProps) {
                 );
               }}
             />
-            <Bar 
-              dataKey="count" 
-              fill="hsl(var(--primary))" 
+            <Bar
+              dataKey="count"
+              fill="hsl(var(--primary))"
               opacity={0.9}
               onClick={(data: any) => {
-                const binTweets = tweets.filter(t => data.tweetIds?.has(t.tweet_id));
+                const binTweets = tweets.filter((t) => data.tweetIds?.has(t.tweet_id));
                 setSelectedRange({
                   tweets: binTweets,
                   range: data.label,
@@ -177,4 +178,4 @@ export function ViewsHistogram({ data, tweets }: HistogramProps) {
       )}
     </div>
   );
-} 
+}

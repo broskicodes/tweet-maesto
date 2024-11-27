@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Footer from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
@@ -21,7 +21,10 @@ export default function New() {
             <div className="flex-1">
               <SidebarProvider defaultOpen={rightOpen} open={rightOpen} onOpenChange={setRightOpen}>
                 <div className="flex w-full">
-                  <MainView onLeftToggle={() => setLeftOpen(!leftOpen)} onRightToggle={() => setRightOpen(!rightOpen)} />
+                  <MainView
+                    onLeftToggle={() => setLeftOpen(!leftOpen)}
+                    onRightToggle={() => setRightOpen(!rightOpen)}
+                  />
                   <RightSidebar />
                 </div>
               </SidebarProvider>

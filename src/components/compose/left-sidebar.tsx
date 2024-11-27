@@ -1,10 +1,26 @@
 import { FC, useState } from "react";
-import { Sidebar, SidebarContent, SidebarHeader, SidebarGroup, SidebarFooter } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarGroup,
+  SidebarFooter,
+} from "@/components/ui/sidebar";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
-import { Sparkles, LayoutDashboard, ExternalLink, LogOut, ChevronUp, ChevronDown, PenSquare, Calendar, GalleryVerticalEnd } from "lucide-react";
+import {
+  Sparkles,
+  LayoutDashboard,
+  ExternalLink,
+  LogOut,
+  ChevronUp,
+  ChevronDown,
+  PenSquare,
+  Calendar,
+  GalleryVerticalEnd,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -17,31 +33,30 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useViewStore, type View } from "@/store/views";
 
-
 const links = [
   {
     title: "Go to Dashboard",
     link: "/dashboard",
-    icon: <LayoutDashboard className="h-4 w-4 mr-2" />
-  }
-]
+    icon: <LayoutDashboard className="h-4 w-4 mr-2" />,
+  },
+];
 
 const navItems = [
   {
     title: "Compose",
-    view: 'compose' as View,
-    icon: <PenSquare className="h-4 w-4" />
+    view: "compose" as View,
+    icon: <PenSquare className="h-4 w-4" />,
   },
   {
     title: "Calendar",
-    view: 'calendar' as View,
-    icon: <Calendar className="h-4 w-4" />
+    view: "calendar" as View,
+    icon: <Calendar className="h-4 w-4" />,
   },
   {
     title: "Planner",
-    view: 'planner' as View,
-    icon: <GalleryVerticalEnd className="h-4 w-4" />
-  }
+    view: "planner" as View,
+    icon: <GalleryVerticalEnd className="h-4 w-4" />,
+  },
 ];
 
 export const LeftSidebar: FC = () => {
@@ -67,13 +82,14 @@ export const LeftSidebar: FC = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
                 <DropdownMenuLabel className="font-normal text-muted-foreground">
-                  Logged in as <span className="font-medium text-foreground">@{session.user.handle}</span>
+                  Logged in as{" "}
+                  <span className="font-medium text-foreground">@{session.user.handle}</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <a 
-                    href={`https://twitter.com/${session.user.handle}`} 
-                    target="_blank" 
+                  <a
+                    href={`https://twitter.com/${session.user.handle}`}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="cursor-pointer"
                   >
@@ -97,9 +113,9 @@ export const LeftSidebar: FC = () => {
                 onClick={() => setView(item.view)}
                 className={cn(
                   "flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm font-medium",
-                  currentView === item.view 
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground" 
-                    : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  currentView === item.view
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                 )}
               >
                 {item.icon}
@@ -131,10 +147,12 @@ export const LeftSidebar: FC = () => {
               <ChevronUp className="h-4 w-4" />
             </Button>
           )}
-          <div className={cn(
-            "transition-all duration-200 ease-in-out border-t",
-            footerOpen ? "h-auto opacity-100" : "h-0 opacity-0 overflow-hidden"
-          )}>
+          <div
+            className={cn(
+              "transition-all duration-200 ease-in-out border-t",
+              footerOpen ? "h-auto opacity-100" : "h-0 opacity-0 overflow-hidden",
+            )}
+          >
             <SidebarFooter>
               <Link href="/" className="flex items-center px-1">
                 <Logo scale={0.5} />
@@ -154,13 +172,9 @@ export const LeftSidebar: FC = () => {
               </nav>
               <div className="p-2">
                 {session && (
-                  <Button 
-                    variant={"default"}
-                    className="w-full"
-                    disabled={!!isSubscribed}
-                  >
+                  <Button variant={"default"} className="w-full" disabled={!!isSubscribed}>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    {isSubscribed ? 'Thanks for Supporting!' : 'Upgrade to Pro'}
+                    {isSubscribed ? "Thanks for Supporting!" : "Upgrade to Pro"}
                   </Button>
                 )}
               </div>
@@ -170,4 +184,4 @@ export const LeftSidebar: FC = () => {
       </Sidebar>
     </div>
   );
-}; 
+};

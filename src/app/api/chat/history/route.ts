@@ -5,10 +5,10 @@ import { getServerSession } from "next-auth";
 // import { authOptions } from "@/lib/auth";
 
 export async function GET(req: Request) {
-//   const session = await getServerSession(authOptions);
-//   if (!session?.user) {
-//     return new Response("Unauthorized", { status: 401 });
-//   }
+  //   const session = await getServerSession(authOptions);
+  //   if (!session?.user) {
+  //     return new Response("Unauthorized", { status: 401 });
+  //   }
 
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type");
@@ -27,19 +27,16 @@ export async function GET(req: Request) {
     //     isNull(chats.deleted_at)
     //   ))
     //   .limit(1);
-
     // if (!chatRecord) {
     //   return new Response(JSON.stringify({ messages: [] }), {
     //     headers: { "Content-Type": "application/json" },
     //   });
     // }
-
     // const messages = await db
     //   .select()
     //   .from(chatMessages)
     //   .where(eq(chatMessages.chat_id, chatRecord.id))
     //   .orderBy(chatMessages.created_at);
-
     // return new Response(JSON.stringify({
     //   messages: messages.map(msg => ({
     //     id: msg.id,
@@ -49,9 +46,8 @@ export async function GET(req: Request) {
     // }), {
     //   headers: { "Content-Type": "application/json" },
     // });
-
   } catch (error) {
     console.error("Chat history error:", error);
     return new Response("Internal server error", { status: 500 });
   }
-} 
+}

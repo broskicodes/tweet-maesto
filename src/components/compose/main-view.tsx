@@ -22,7 +22,7 @@ interface MainViewProps {
 
 export const MainView: FC<MainViewProps> = ({ onLeftToggle, onRightToggle }) => {
   const { data: session } = useSession();
-  
+
   const { currentView } = useViewStore();
 
   return (
@@ -50,10 +50,7 @@ export const MainView: FC<MainViewProps> = ({ onLeftToggle, onRightToggle }) => 
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center space-x-2">
-            <Button 
-              className="flex-1" 
-              onClick={() => signIn("twitter")}
-            >
+            <Button className="flex-1" onClick={() => signIn("twitter")}>
               <Twitter className="mr-2 h-4 w-4" />
               Sign in with Twitter
             </Button>
@@ -62,4 +59,4 @@ export const MainView: FC<MainViewProps> = ({ onLeftToggle, onRightToggle }) => 
       </Dialog>
     </section>
   );
-}; 
+};

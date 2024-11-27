@@ -90,7 +90,7 @@ export function PricingCard() {
         "Immediate access to new features",
       ],
     }),
-    [currentPrice, nextPrice, progressValue, remainingPurchases]
+    [currentPrice, nextPrice, progressValue, remainingPurchases],
   );
 
   if (!isDataLoaded) {
@@ -117,7 +117,8 @@ export function PricingCard() {
           <Progress value={pricingData.progressValue} className="h-3 w-full" />
           <div className="flex justify-center text-xs text-muted-foreground">
             <span>
-              Price increases to ${pricingData.nextPrice} after {pricingData.remainingPurchases} more purchases
+              Price increases to ${pricingData.nextPrice} after {pricingData.remainingPurchases}{" "}
+              more purchases
             </span>
           </div>
         </div>
@@ -164,4 +165,4 @@ export function PricingCard() {
       </CardFooter>
     </Card>
   );
-} 
+}

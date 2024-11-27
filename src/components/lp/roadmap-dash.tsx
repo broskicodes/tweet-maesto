@@ -133,11 +133,7 @@ export default function RoadmapDash() {
   const currentWeekKey = getWeekKey(new Date());
 
   return (
-    <Section
-      title="Roadmap"
-      subtitle="I ship *kinda* fast."
-      className="bg-gray-50"
-    >
+    <Section title="Roadmap" subtitle="I ship *kinda* fast." className="bg-gray-50">
       <ScrollArea className="w-full rounded-md mt-8 px-8">
         <div ref={scrollViewportRef} className="flex gap-4 p-4 w-full overflow-x-auto">
           {Object.entries(weeks).map(([weekKey, week]) => (

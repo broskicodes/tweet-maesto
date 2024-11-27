@@ -28,7 +28,7 @@ const calculateMaxValues = (chartData: any[]) => ({
   comments: Math.max(...chartData.map((t) => t.comments)) * 0.5,
   bookmarks: Math.max(...chartData.map((t) => t.bookmarks)) * 0.5,
   retweets: Math.max(...chartData.map((t) => t.retweets)) * 0.5,
-  engagement_rate: Math.max(...chartData.map((t) => t.engagement_rate)) * 0.5
+  engagement_rate: Math.max(...chartData.map((t) => t.engagement_rate)) * 0.5,
 });
 
 const CustomTooltip = ({ active, payload, label, selectedMetric, maxValues }: any) => {
@@ -120,8 +120,7 @@ export function PerformanceChart({ chartData, onMetricChange }: PerformanceChart
     <>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2 text-lg font-medium">
-          {selectedMetric.charAt(0).toUpperCase() +
-            selectedMetric.slice(1).replaceAll("_", " ")}
+          {selectedMetric.charAt(0).toUpperCase() + selectedMetric.slice(1).replaceAll("_", " ")}
         </div>
         <ToggleGroup
           type="single"
@@ -144,7 +143,10 @@ export function PerformanceChart({ chartData, onMetricChange }: PerformanceChart
       <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
-            <XAxis dataKey="date" tickFormatter={(value: string) => format(new Date(value), "MMM d")} />
+            <XAxis
+              dataKey="date"
+              tickFormatter={(value: string) => format(new Date(value), "MMM d")}
+            />
             <YAxis
               tickFormatter={(value: number) =>
                 value >= 1_000_000
@@ -173,4 +175,4 @@ export function PerformanceChart({ chartData, onMetricChange }: PerformanceChart
       </div>
     </>
   );
-} 
+}

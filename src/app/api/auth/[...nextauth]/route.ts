@@ -4,12 +4,13 @@ import { TwitterScrapeType } from "@/lib/types";
 import { and, eq } from "drizzle-orm";
 import NextAuth from "next-auth";
 import TwitterProvider from "next-auth/providers/twitter";
-import { PostHog } from 'posthog-node'
+import { PostHog } from "posthog-node";
 
-const posthog = new PostHog(
-  process.env.NEXT_PUBLIC_POSTHOG_KEY!,
-  { host: process.env.NEXT_PUBLIC_POSTHOG_HOST, flushAt: 1, flushInterval: 1000 }
-)
+const posthog = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+  host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+  flushAt: 1,
+  flushInterval: 1000,
+});
 
 const handler = NextAuth({
   providers: [
@@ -132,10 +133,10 @@ const handler = NextAuth({
               handle: profileData.username,
             },
           });
-    
+
           posthog.capture({
             distinctId: user.id,
-            event: 'sign-in-success'
+            event: "sign-in-success",
           });
 
           posthog.shutdown();

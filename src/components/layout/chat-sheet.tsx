@@ -40,98 +40,100 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
   //     console.error("Failed to load chat history:", error);
   //   }
   // };
-  
+
   // loadHistory();
 
-  const handleSubmit = useCallback(async (firstMessage: boolean = false) => {
-    let msgs = messages;
+  const handleSubmit = useCallback(
+    async (firstMessage: boolean = false) => {
+      let msgs = messages;
 
-    if (!firstMessage) {
-      if (!input.trim() || isLoading) return;
-      
-      const userMessage: Message = {
-        id: Date.now().toString(),
-        content: input,
-        role: "user",
-      };
+      if (!firstMessage) {
+        if (!input.trim() || isLoading) return;
 
-      msgs = [...msgs, userMessage];
-      setMessages(prev => [...prev, userMessage]);
-      setInput("");
-    }
+        const userMessage: Message = {
+          id: Date.now().toString(),
+          content: input,
+          role: "user",
+        };
 
-    setIsLoading(true);
-
-    const assistantMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      content: "",
-      role: "assistant",
-    };
-    setMessages(prev => [...prev, assistantMessage]);
-
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: msgs.map(({ content, role }) => ({ content, role })),
-          type: ChatPromptType.AudienceInitializeChat,
-          user: {
-            handle,
-            id: session?.user.id,
-          },
-          chatId,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to fetch");
-
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No reader");
-
-      let content = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const text = new TextDecoder().decode(value);
-        content += text;
-        setMessages(prev => {
-          const newMessages = [...prev];
-          newMessages[newMessages.length - 1].content = content;
-          return newMessages;
-        });
-        const complete = content.split("<complete>")[1]?.split("</complete>")[0];
-        if (complete === "True") {
-          const response = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              messages: msgs.map(({ content, role }) => ({ content, role })),
-              type: ChatPromptType.AudienceInitialize,
-              user: {
-                handle,
-                id: session?.user.id,
-              },
-              chatId,
-            }),
-          });
-
-          if (!response.ok) throw new Error("Failed to fetch");
-
-          const analysis = await response.json();
-          console.log(analysis);
-
-          onComplete();
-        }
+        msgs = [...msgs, userMessage];
+        setMessages((prev) => [...prev, userMessage]);
+        setInput("");
       }
 
-    } catch (error) {
-      console.error("Chat error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [messages, input, isLoading, handle, chatId, onComplete, session?.user.id]);
+      setIsLoading(true);
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "",
+        role: "assistant",
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: msgs.map(({ content, role }) => ({ content, role })),
+            type: ChatPromptType.AudienceInitializeChat,
+            user: {
+              handle,
+              id: session?.user.id,
+            },
+            chatId,
+          }),
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch");
+
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error("No reader");
+
+        let content = "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const text = new TextDecoder().decode(value);
+          content += text;
+          setMessages((prev) => {
+            const newMessages = [...prev];
+            newMessages[newMessages.length - 1].content = content;
+            return newMessages;
+          });
+          const complete = content.split("<complete>")[1]?.split("</complete>")[0];
+          if (complete === "True") {
+            const response = await fetch("/api/chat", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                messages: msgs.map(({ content, role }) => ({ content, role })),
+                type: ChatPromptType.AudienceInitialize,
+                user: {
+                  handle,
+                  id: session?.user.id,
+                },
+                chatId,
+              }),
+            });
+
+            if (!response.ok) throw new Error("Failed to fetch");
+
+            const analysis = await response.json();
+            console.log(analysis);
+
+            onComplete();
+          }
+        }
+      } catch (error) {
+        console.error("Chat error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [messages, input, isLoading, handle, chatId, onComplete, session?.user.id],
+  );
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -147,23 +149,18 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent 
-        side="right" 
-        className="w-full sm:w-[500px] md:w-[600px] p-0"
-      >
+      <SheetContent side="right" className="w-full sm:w-[500px] md:w-[600px] p-0">
         <SheetHeader className="p-6 border-b">
           <SheetTitle>Define Your Target Audience</SheetTitle>
         </SheetHeader>
-        
+
         <div className="flex flex-col h-[calc(100vh-5rem)]">
           <ScrollArea className="flex-1 p-6">
             <div className="space-y-4">
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${
-                    message.role === "user" ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
                     className={`rounded-lg p-3 ${
@@ -172,14 +169,16 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
                         : "bg-muted mr-4"
                     }`}
                   >
-                    {message.role === "user" ? message.content : message.content.split("<response>")[1]?.split("</response>")[0] || "..."}
+                    {message.role === "user"
+                      ? message.content
+                      : message.content.split("<response>")[1]?.split("</response>")[0] || "..."}
                   </div>
                 </div>
               ))}
               <div ref={scrollRef} />
             </div>
           </ScrollArea>
-          
+
           <div className="border-t p-4">
             <div className="flex flex-col gap-2">
               <Textarea
@@ -195,11 +194,7 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
                   }
                 }}
               />
-              <Button 
-                onClick={() => handleSubmit(false)}
-                className="w-full"
-                disabled={isLoading}
-              >
+              <Button onClick={() => handleSubmit(false)} className="w-full" disabled={isLoading}>
                 {isLoading ? "Thinking..." : "Send"}
               </Button>
             </div>
@@ -208,4 +203,4 @@ export function ChatSheet({ isOpen, onClose, onComplete, handle }: ChatSheetProp
       </SheetContent>
     </Sheet>
   );
-} 
+}

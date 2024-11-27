@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
           ORDER BY tf.created_at DESC 
           LIMIT 1
         )`,
-        similarity: sql<number>`1 - (${cosineDistance(profiles.embedding, profile[0].embedding)})`
+        similarity: sql<number>`1 - (${cosineDistance(profiles.embedding, profile[0].embedding)})`,
       })
       .from(profiles)
       .innerJoin(twitterHandles, eq(profiles.handle_id, twitterHandles.id))
@@ -59,16 +59,15 @@ export async function POST(request: NextRequest) {
       .limit(5)
       .offset(offset);
 
-    return NextResponse.json(similarProfiles.map(profile => ({
-      ...profile,
-      pfp: `https://unavatar.io/twitter/${profile.handle}`,
-      followers: profile.followers || 0
-    })));
+    return NextResponse.json(
+      similarProfiles.map((profile) => ({
+        ...profile,
+        pfp: `https://unavatar.io/twitter/${profile.handle}`,
+        followers: profile.followers || 0,
+      })),
+    );
   } catch (error) {
     console.error("Error finding similar profiles:", error);
-    return NextResponse.json(
-      { error: "Failed to find similar profiles" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to find similar profiles" }, { status: 500 });
   }
-} 
+}

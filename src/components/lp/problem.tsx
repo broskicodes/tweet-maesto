@@ -29,10 +29,7 @@ const steps = [
 
 export default function Component() {
   return (
-    <Section
-      title="The Question"
-      subtitle="How do you grow *consistently* on Twitter?"
-    >
+    <Section title="The Question" subtitle="How do you grow *consistently* on Twitter?">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
         {steps.map((step, index) => (
           <BlurFade key={index} delay={0.2 + index * 0.2} inView>
@@ -42,9 +39,7 @@ export default function Component() {
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                     <step.icon className="w-6 h-6 text-primary" />
                   </div>
-                  <span className="text-2xl font-light text-primary/50">
-                    {step.number}
-                  </span>
+                  <span className="text-2xl font-light text-primary/50">{step.number}</span>
                 </div>
                 <h3 className="text-xl font-semibold">{step.title}</h3>
                 <p className="text-muted-foreground">{step.description}</p>

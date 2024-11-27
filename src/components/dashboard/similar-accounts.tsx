@@ -36,24 +36,25 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
   const [showPricing, setShowPricing] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  const fetchSimilarAccounts = useCallback(async (pageNum: number) => {
-    try {
-      const response = await fetch("/api/profiles/similar", {
-        method: "POST",
-        body: JSON.stringify({ handle, page: pageNum }),
-      });
+  const fetchSimilarAccounts = useCallback(
+    async (pageNum: number) => {
+      try {
+        const response = await fetch("/api/profiles/similar", {
+          method: "POST",
+          body: JSON.stringify({ handle, page: pageNum }),
+        });
 
-      if (!response.ok) throw new Error("Failed to fetch similar accounts");
-      
-      const data = await response.json();
-      if (pageNum === 0) {
-        setAccounts(data);
-      } else {
-        setAccounts(prev => [...prev, ...data]);
-      }
-      setHasMore(data.length === 5);
-    } catch (error) {
-      console.error("Error fetching similar accounts:", error);
+        if (!response.ok) throw new Error("Failed to fetch similar accounts");
+
+        const data = await response.json();
+        if (pageNum === 0) {
+          setAccounts(data);
+        } else {
+          setAccounts((prev) => [...prev, ...data]);
+        }
+        setHasMore(data.length === 5);
+      } catch (error) {
+        console.error("Error fetching similar accounts:", error);
       }
     },
     [handle],
@@ -61,10 +62,10 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
 
   const initialize = async () => {
     setIsLoading(true);
-    
+
     const response = await fetch("/api/profiles", {
       method: "POST",
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         handle,
         all: false,
       }),
@@ -100,20 +101,21 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
         <Card className="h-[700px] flex flex-col">
           <CardHeader>
             <CardTitle>Similar Accounts</CardTitle>
-            <CardDescription>
-              Accounts with a similar audience to @{handle}
-            </CardDescription>
+            <CardDescription>Accounts with a similar audience to @{handle}</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col items-center justify-center gap-4">
             <p className="text-muted-foreground text-center">
               Upgrade to discover accounts with similar audiences
             </p>
-            <Button onClick={() => {
-              posthog.capture("upgrade-popup", {
-                trigger: "similar-accounts"
-              });
-              setShowPricing(true);
-            }} variant="default">
+            <Button
+              onClick={() => {
+                posthog.capture("upgrade-popup", {
+                  trigger: "similar-accounts",
+                });
+                setShowPricing(true);
+              }}
+              variant="default"
+            >
               <Zap className="mr-2 h-4 w-4" />
               Get Access
             </Button>
@@ -129,9 +131,7 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
       <Card className="h-[700px] flex flex-col">
         <CardHeader>
           <CardTitle>Similar Accounts</CardTitle>
-          <CardDescription>
-            Accounts with a similar audience to @{handle}
-          </CardDescription>
+          <CardDescription>Accounts with a similar audience to @{handle}</CardDescription>
         </CardHeader>
         <CardContent className="flex-1">
           <ScrollArea className="h-[570px] mb-4">
@@ -142,10 +142,10 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
                 <p className="text-muted-foreground text-center">
                   {"Let's craft your digital persona and determine your target audience"}
                 </p>
-                <Button 
+                <Button
                   onClick={() => {
                     setIsChatOpen(true);
-                  }} 
+                  }}
                   variant="default"
                 >
                   Get Started
@@ -156,18 +156,15 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
                 <p className="text-muted-foreground text-center">
                   {"This account hasn't been initialized yet"}
                 </p>
-                <Button 
-                  onClick={initialize} 
-                  variant="default"
-                >
+                <Button onClick={initialize} variant="default">
                   Initialize Account
                 </Button>
               </div>
             ) : (
               <div className="space-y-4 pr-4 pb-6">
                 {accounts.map((account) => (
-                  <Card 
-                    key={account.handle} 
+                  <Card
+                    key={account.handle}
                     className="p-4 hover:bg-muted/50 transition-colors cursor-pointer"
                     onClick={() => onAccountSelect?.(account.handle)}
                   >
@@ -225,11 +222,7 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
                 ))}
                 {hasMore && (
                   <div className="pt-2 flex justify-center">
-                    <Button 
-                      variant="outline" 
-                      onClick={loadMore}
-                      disabled={isLoadingMore}
-                    >
+                    <Button variant="outline" onClick={loadMore} disabled={isLoadingMore}>
                       {isLoadingMore ? "Loading..." : "Load More"}
                     </Button>
                   </div>
@@ -239,7 +232,7 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
           </ScrollArea>
         </CardContent>
       </Card>
-      <ChatSheet 
+      <ChatSheet
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
         onComplete={() => {
@@ -250,4 +243,4 @@ export function SimilarAccounts({ handle, onAccountSelect }: SimilarAccountsProp
       />
     </>
   );
-} 
+}

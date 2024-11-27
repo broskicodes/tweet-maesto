@@ -47,10 +47,8 @@ const features = [
   },
   {
     title: "Discover and Analyze Competitors",
-    description:
-      "Improve your content strategy by learning what's working for other creators.",
-    className:
-      "md:row-span-2 hover:bg-primary/10 transition-all duration-500 ease-out",
+    description: "Improve your content strategy by learning what's working for other creators.",
+    className: "md:row-span-2 hover:bg-primary/10 transition-all duration-500 ease-out",
     content: (
       <>
         <FlickeringGrid
@@ -73,8 +71,7 @@ const features = [
   },
   {
     title: "Track Your Stats",
-    description:
-      "Stay consistent by tracking your growth and engagement over time.",
+    description: "Stay consistent by tracking your growth and engagement over time.",
     className:
       "flex-row order-4 md:col-span-2 md:flex-row xl:order-none hover:bg-primary/10 transition-all duration-500 ease-out",
     content: (
@@ -104,7 +101,7 @@ export default function Component() {
             key={index}
             className={cn(
               "group relative items-start overflow-hidden bg-neutral-50 dark:bg-neutral-800 p-6 rounded-2xl",
-              feature.className
+              feature.className,
             )}
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -118,9 +115,7 @@ export default function Component() {
             viewport={{ once: true }}
           >
             <div>
-              <h3 className="font-semibold mb-2 text-primary">
-                {feature.title}
-              </h3>
+              <h3 className="font-semibold mb-2 text-primary">{feature.title}</h3>
               <p className="text-foreground">{feature.description}</p>
             </div>
             {feature.content}

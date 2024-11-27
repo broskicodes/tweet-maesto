@@ -5,10 +5,7 @@ import { PricingCard } from "./pricing-card";
 
 export function PricingDash() {
   return (
-    <Section
-      title="Pricing"
-      subtitle="Pay once, use *forever*."
-    >
+    <Section title="Pricing" subtitle="Pay once, use *forever*.">
       <div className="mt-4">
         <PricingCard />
       </div>

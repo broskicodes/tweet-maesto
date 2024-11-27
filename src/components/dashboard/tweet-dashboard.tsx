@@ -9,7 +9,7 @@ import { TweetCharts } from "./tweet-charts";
 import { Tweet } from "@/lib/types";
 import { useSession } from "next-auth/react";
 import { TweetDistribution } from "./tweet-distribution";
-import { CorrelationCard } from './correlation-card';
+import { CorrelationCard } from "./correlation-card";
 
 export function TweetDashboard() {
   const [popularTweets, setPopularTweets] = useState<Tweet[]>([]);

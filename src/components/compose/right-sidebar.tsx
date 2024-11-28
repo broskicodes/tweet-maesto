@@ -25,13 +25,14 @@ interface Draft {
 export const RightSidebar: FC = () => {
   const { currentView } = useViewStore();
   const { data: session } = useSession();
-  const { drafts, activeDraft, isLoading, setActiveDraft, createDraft, deleteDraft } = useDraftsStore();
+  const { drafts, activeDraft, isLoading, setActiveDraft, createDraft, deleteDraft } =
+    useDraftsStore();
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const handleNewDraft = async () => {
     if (!session?.user?.id) return;
-    await createDraft(session.user.id, [{ id: Date.now().toString(), content: "" }]);
+    await createDraft([{ id: Date.now().toString(), content: "" }]);
   };
 
   const filteredTweets = {
@@ -46,8 +47,8 @@ export const RightSidebar: FC = () => {
 
   const handleDelete = async (e: React.MouseEvent, draftId: string) => {
     e.preventDefault();
-    if (deleteConfirm === draftId && session?.user?.id) {
-      await deleteDraft(session.user.id, draftId);
+    if (deleteConfirm === draftId) {
+      await deleteDraft(draftId);
       setDeleteConfirm(null);
       setOpenMenuId(null);
     } else {
@@ -80,9 +81,11 @@ export const RightSidebar: FC = () => {
         }`}
         onClick={() => handleDraftClick(tweet)}
       >
-        <div className={`text-sm ${
-          activeDraft?.id === tweet.id ? "font-semibold" : "font-medium"
-        } truncate`}>
+        <div
+          className={`text-sm ${
+            activeDraft?.id === tweet.id ? "font-semibold" : "font-medium"
+          } truncate`}
+        >
           {tweet.tweet_boxes[0]?.content || "Empty draft"}
         </div>
         <div className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
@@ -93,10 +96,13 @@ export const RightSidebar: FC = () => {
             )}
           </div>
           {status === "drafts" && (
-            <DropdownMenu open={openMenuId === tweet.id} onOpenChange={(open) => {
-              setOpenMenuId(open ? tweet.id : null);
-              if (!open && deleteConfirm !== tweet.id) setDeleteConfirm(null);
-            }}>
+            <DropdownMenu
+              open={openMenuId === tweet.id}
+              onOpenChange={(open) => {
+                setOpenMenuId(open ? tweet.id : null);
+                if (!open && deleteConfirm !== tweet.id) setDeleteConfirm(null);
+              }}
+            >
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
@@ -130,7 +136,7 @@ export const RightSidebar: FC = () => {
         return (
           <>
             <Tabs defaultValue="drafts" className="w-full">
-              <SidebarHeader className="h-14 border-b px-4 flex items-center justify-between">
+              <SidebarHeader className="h-14 border-b px-2 flex items-center justify-between">
                 <TabsList variant="underline" className="grid w-full grid-cols-3">
                   <TabsTrigger value="drafts">Drafts</TabsTrigger>
                   <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
@@ -139,24 +145,24 @@ export const RightSidebar: FC = () => {
               </SidebarHeader>
               <SidebarContent>
                 <div className="flex flex-col">
-                <div
-                  onClick={handleNewDraft}
-                  className="p-4 border-b hover:bg-muted/50 cursor-pointer flex items-center gap-2 text-sm text-muted-foreground"
-                >
-                  <Plus className="h-4 w-4" />
-                  Create new draft
-                </div>
-                <ScrollArea className="h-[calc(100vh-8rem)]">
-                  <TabsContent value="drafts" className="mt-0">
-                    {renderTweets("drafts")}
-                  </TabsContent>
-                  <TabsContent value="scheduled" className="mt-0">
-                    {renderTweets("scheduled")}
-                  </TabsContent>
-                  <TabsContent value="posted" className="mt-0">
-                    {renderTweets("posted")}
-                  </TabsContent>
-                </ScrollArea>
+                  <div
+                    onClick={handleNewDraft}
+                    className="p-4 border-b hover:bg-muted/50 cursor-pointer flex items-center gap-2 text-sm text-muted-foreground"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Create new draft
+                  </div>
+                  <ScrollArea className="h-[calc(100vh-8rem)]">
+                    <TabsContent value="drafts" className="mt-0">
+                      {renderTweets("drafts")}
+                    </TabsContent>
+                    <TabsContent value="scheduled" className="mt-0">
+                      {renderTweets("scheduled")}
+                    </TabsContent>
+                    <TabsContent value="posted" className="mt-0">
+                      {renderTweets("posted")}
+                    </TabsContent>
+                  </ScrollArea>
                 </div>
               </SidebarContent>
             </Tabs>

@@ -2,33 +2,36 @@ import { db } from "@/lib/drizzle";
 import { tweetDrafts } from "@/lib/db-schema";
 import { and, eq, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const user_id = searchParams.get("user_id");
+export async function GET() {
+  const session = await getServerSession(authOptions);
 
-  if (!user_id) {
+  if (!session?.user?.id) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   const drafts = await db
     .select()
     .from(tweetDrafts)
-    .where(and(eq(tweetDrafts.user_id, user_id), isNull(tweetDrafts.deleted_at)));
+    .where(and(eq(tweetDrafts.user_id, session.user.id), isNull(tweetDrafts.deleted_at)));
 
   return NextResponse.json(drafts);
 }
 
 export async function POST(req: Request) {
-  const { user_id, tweet_boxes } = await req.json();
-  if (!user_id) {
+  const session = await getServerSession(authOptions);
+  const { tweet_boxes } = await req.json();
+  
+  if (!session?.user?.id) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   const draft = await db
     .insert(tweetDrafts)
     .values({
-      user_id,
+      user_id: session.user.id,
       tweet_boxes,
       status: "draft",
     })

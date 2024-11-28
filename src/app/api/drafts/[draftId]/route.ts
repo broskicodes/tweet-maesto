@@ -2,10 +2,13 @@ import { db } from "@/lib/drizzle";
 import { tweetDrafts } from "@/lib/db-schema";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function PUT(req: Request, { params }: { params: { draftId: string } }) {
-  const { user_id, tweet_boxes } = await req.json();
-  if (!user_id) {
+  const session = await getServerSession(authOptions);
+  const { tweet_boxes } = await req.json();
+  if (!session?.user?.id) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
@@ -15,7 +18,7 @@ export async function PUT(req: Request, { params }: { params: { draftId: string 
       tweet_boxes,
       updated_at: new Date(),
     })
-    .where(and(eq(tweetDrafts.id, params.draftId), eq(tweetDrafts.user_id, user_id)))
+    .where(and(eq(tweetDrafts.id, params.draftId), eq(tweetDrafts.user_id, session.user.id)))
     .returning();
 
   if (!updated.length) {
@@ -25,12 +28,9 @@ export async function PUT(req: Request, { params }: { params: { draftId: string 
   return NextResponse.json(updated[0]);
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { draftId: string } }
-) {
-  const { user_id } = await req.json();
-  if (!user_id) {
+export async function DELETE(req: Request, { params }: { params: { draftId: string } }) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
@@ -39,10 +39,7 @@ export async function DELETE(
     .set({
       deleted_at: new Date(),
     })
-    .where(and(
-      eq(tweetDrafts.id, params.draftId),
-      eq(tweetDrafts.user_id, user_id)
-    ))
+    .where(and(eq(tweetDrafts.id, params.draftId), eq(tweetDrafts.user_id, session.user.id)))
     .returning();
 
   if (!deleted.length) {

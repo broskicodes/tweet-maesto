@@ -35,7 +35,7 @@ export const MainView: FC<MainViewProps> = ({ onLeftToggle, onRightToggle }) => 
           <PanelRight className="h-4 w-4" />
         </Button>
       </div>
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex flex-col flex-1">
         {currentView === "compose" && <Composer />}
         {currentView === "calendar" && <Calendar />}
         {currentView === "planner" && <Planner />}

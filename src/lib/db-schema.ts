@@ -245,7 +245,9 @@ export const tweetDrafts = pgTable("tweet_drafts", {
     .references(() => users.id)
     .notNull(),
   tweet_boxes: jsonb("tweet_boxes").notNull(),
-  status: tweetDraftStatus("status").notNull(),
+  status: text("status").notNull().default("draft"),
+  posted_at: timestamp("posted_at"),
+  scheduled_for: timestamp("scheduled_for"),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
   deleted_at: timestamp("deleted_at"),

@@ -23,10 +23,10 @@ interface DraftsState {
   setIsLoading: (loading: boolean) => void;
   setIsFetched: (fetched: boolean) => void;
   loadDrafts: (userId: string) => Promise<void>;
-  saveDraft: (userId: string, tweetBoxes: TweetBox[]) => Promise<void>;
-  updateDraft: (userId: string, draftId: string, tweetBoxes: TweetBox[]) => Promise<void>;
-  createDraft: (userId: string, tweetBoxes: TweetBox[]) => Promise<void>;
-  deleteDraft: (userId: string, draftId: string) => Promise<void>;
+  saveDraft: (tweetBoxes: TweetBox[]) => Promise<void>;
+  updateDraft: (draftId: string, tweetBoxes: TweetBox[]) => Promise<void>;
+  createDraft: (tweetBoxes: TweetBox[]) => Promise<void>;
+  deleteDraft: (draftId: string) => Promise<void>;
 }
 
 export const useDraftsStore = create<DraftsState>((set, get) => ({
@@ -44,7 +44,7 @@ export const useDraftsStore = create<DraftsState>((set, get) => ({
     const { setIsLoading, setDrafts, setActiveDraft, setIsFetched } = get();
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/drafts?user_id=${userId}`);
+      const res = await fetch(`/api/drafts`);
       if (res.ok) {
         const data = await res.json();
         setDrafts(data);
@@ -75,13 +75,13 @@ export const useDraftsStore = create<DraftsState>((set, get) => ({
     }
   },
 
-  updateDraft: async (userId, draftId, tweetBoxes) => {
+  updateDraft: async (draftId, tweetBoxes) => {
     const { drafts, setDrafts, setActiveDraft } = get();
     try {
       const res = await fetch(`/api/drafts/${draftId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, tweet_boxes: tweetBoxes }),
+        body: JSON.stringify({ tweet_boxes: tweetBoxes }),
       });
       if (res.ok) {
         const updatedDraft = await res.json();
@@ -93,13 +93,13 @@ export const useDraftsStore = create<DraftsState>((set, get) => ({
     }
   },
 
-  createDraft: async (userId, tweetBoxes) => {
+  createDraft: async (tweetBoxes) => {
     const { drafts, setDrafts, setActiveDraft } = get();
     try {
       const res = await fetch("/api/drafts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, tweet_boxes: tweetBoxes }),
+        body: JSON.stringify({ tweet_boxes: tweetBoxes }),
       });
       if (res.ok) {
         const draft = await res.json();
@@ -111,35 +111,34 @@ export const useDraftsStore = create<DraftsState>((set, get) => ({
     }
   },
 
-  saveDraft: async (userId, tweetBoxes) => {
+  saveDraft: async (tweetBoxes) => {
     const { activeDraft, createDraft, updateDraft } = get();
     if (activeDraft) {
-      await updateDraft(userId, activeDraft.id, tweetBoxes);
+      await updateDraft(activeDraft.id, tweetBoxes);
     } else {
-      await createDraft(userId, tweetBoxes);
+      await createDraft(tweetBoxes);
     }
   },
 
-  deleteDraft: async (userId, draftId) => {
+  deleteDraft: async (draftId) => {
     const { drafts, setDrafts, activeDraft, setActiveDraft } = get();
     try {
       const res = await fetch(`/api/drafts/${draftId}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId }),
       });
-      
+
       if (res.ok) {
-        const newDrafts = drafts.filter(d => d.id !== draftId);
+        const newDrafts = drafts.filter((d) => d.id !== draftId);
         setDrafts(newDrafts);
-        
+
         // If we deleted the active draft, set the first available draft as active
         if (activeDraft?.id === draftId) {
           setActiveDraft(newDrafts[0] || null);
         }
       }
     } catch (error) {
-      console.error('Failed to delete draft:', error);
+      console.error("Failed to delete draft:", error);
     }
   },
 }));

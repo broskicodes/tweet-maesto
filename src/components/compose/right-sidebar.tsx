@@ -137,9 +137,9 @@ export const RightSidebar: FC = () => {
           <>
             <Tabs defaultValue="drafts" className="w-full">
               <SidebarHeader className="h-14 border-b px-2 flex items-center justify-between">
-                <TabsList variant="underline" className="grid w-full grid-cols-3">
+                <TabsList variant="underline" className="grid w-full grid-cols-2">
                   <TabsTrigger value="drafts">Drafts</TabsTrigger>
-                  <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+                  {/* <TabsTrigger value="scheduled">Scheduled</TabsTrigger> */}
                   <TabsTrigger value="posted">Posted</TabsTrigger>
                 </TabsList>
               </SidebarHeader>

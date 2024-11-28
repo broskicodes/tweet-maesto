@@ -4,7 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { useSession } from "next-auth/react";
 import { Verified, ListPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TweetBox, useDraftsStore } from "@/store/drafts";
+import { Draft, TweetBox, useDraftsStore } from "@/store/drafts";
 import { Dock, DockIcon, DockButton } from "@/components/magicui/dock";
 import { Send, Clock } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -14,12 +14,13 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { addMinutes, setHours, setMinutes } from "date-fns";
+import { toZonedTime, format as formatTz, fromZonedTime } from 'date-fns-tz';
 
 const MAX_CHARS = 280;
 
 export default function Composer() {
   const { data: session } = useSession();
-  const { activeDraft, isLoading, isFetched, loadDrafts, updateDraft } = useDraftsStore();
+  const { activeDraft, isLoading, isFetched, loadDrafts, updateDraft, setActiveDraft } = useDraftsStore();
   const [localContent, setLocalContent] = useState<TweetBox[]>([{ id: "1", content: "" }]);
   const [hasChanges, setHasChanges] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -106,11 +107,19 @@ export default function Composer() {
     
     try {
       setIsPosting(true);
+      
+      // Save any pending changes first
+      if (hasChanges) {
+        await updateDraft(activeDraft.id, localContent);
+        setHasChanges(false);
+      }
+      
       const response = await fetch(`/api/drafts/${activeDraft.id}/post`, {
         method: "POST",
       });
 
       if (!response.ok) throw new Error("Failed to post tweets");
+      setActiveDraft({ ...activeDraft, status: "posted" });
       toast.success("Posted successfully!");
     } catch (error) {
       toast.error("Failed to post tweets");
@@ -124,11 +133,24 @@ export default function Composer() {
     if (!activeDraft || !session?.user?.id || !scheduledDate) return;
     
     try {
+      // Save any pending changes first
+      if (hasChanges) {
+        await updateDraft(activeDraft.id, localContent);
+        setHasChanges(false);
+      }
+      
       const [hours, minutes] = scheduleTime.split(':').map(Number);
-      const dateWithTime = setMinutes(setHours(scheduledDate, hours), minutes);
+      
+      // Create a new date in local timezone
+      const localDate = toZonedTime(scheduledDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
+      localDate.setHours(hours);
+      localDate.setMinutes(minutes);
+      
+      // Convert to UTC for API
+      const utcDate = fromZonedTime(localDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
       
       const minScheduleTime = addMinutes(new Date(), 5);
-      if (dateWithTime < minScheduleTime) {
+      if (utcDate < minScheduleTime) {
         toast.error("Schedule time must be at least 5 minutes in the future");
         return;
       }
@@ -138,13 +160,14 @@ export default function Composer() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          scheduledFor: dateWithTime.toISOString(),
+          scheduledFor: utcDate.toISOString(),
         }),
       });
 
       if (!response.ok) throw new Error("Failed to schedule tweets");
-      toast.success(`Scheduled for ${format(dateWithTime, "PPP 'at' p")}`);
-      setScheduledDate(dateWithTime);
+      setActiveDraft({ ...activeDraft, status: "scheduled" });
+      toast.success(`Scheduled for ${formatTz(utcDate, "PPP 'at' p", { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone })}`);
+      setScheduledDate(utcDate);
       setIsCalendarOpen(false);
     } catch (error) {
       toast.error("Failed to schedule tweets");
@@ -152,6 +175,12 @@ export default function Composer() {
     } finally {
       setIsScheduling(false);
     }
+  };
+
+  const getCharCountColor = (charCount: number) => {
+    if (charCount >= MAX_CHARS) return "text-destructive";
+    if (charCount >= MAX_CHARS - 20) return "text-yellow-700";
+    return "text-primary";
   };
 
   if (isLoading) {
@@ -221,14 +250,17 @@ export default function Composer() {
                   <Progress
                     value={(box.content.length / MAX_CHARS) * 100}
                     className="h-6 w-6 rounded-full"
-                    style={{
-                      background:
-                        box.content.length >= MAX_CHARS
-                          ? "rgb(239 68 68 / 0.2)"
-                          : "rgb(63 63 70 / 0.2)",
-                    }}
+                    color={
+                      box.content.length >= MAX_CHARS 
+                        ? "destructive" 
+                        : box.content.length >= MAX_CHARS - 20 
+                          ? "warning" 
+                          : "default"
+                    }
                   />
-                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-medium">
+                  <span 
+                    className={`absolute inset-0 flex items-center justify-center text-[10px] font-medium ${getCharCountColor(box.content.length)}`}
+                  >
                     {box.content.length}
                   </span>
                 </div>
@@ -259,15 +291,22 @@ export default function Composer() {
                   <div className="flex gap-2">
                     <Input
                       type="date"
-                      value={scheduledDate ? format(scheduledDate, "yyyy-MM-dd") : ""}
-                      min={format(new Date(), "yyyy-MM-dd")}
+                      value={scheduledDate ? formatTz(toZonedTime(scheduledDate, Intl.DateTimeFormat().resolvedOptions().timeZone), "yyyy-MM-dd") : ""}
+                      min={formatTz(new Date(), "yyyy-MM-dd")}
                       onChange={(e) => {
-                        const date = new Date(e.target.value);
-                        if (scheduledDate) {
-                          date.setHours(scheduledDate.getHours());
-                          date.setMinutes(scheduledDate.getMinutes());
+                        if (e.target.value) {
+                          // Create date in local timezone
+                          const [year, month, day] = e.target.value.split('-').map(Number);
+                          const localDate = new Date(year, month - 1, day);
+                          
+                          // If there's an existing scheduled date, preserve the time
+                          if (scheduledDate) {
+                            localDate.setHours(scheduledDate.getHours());
+                            localDate.setMinutes(scheduledDate.getMinutes());
+                          }
+                          
+                          setScheduledDate(localDate);
                         }
-                        setScheduledDate(date);
                       }}
                       className="w-full"
                     />
@@ -293,7 +332,7 @@ export default function Composer() {
             </PopoverContent>
           </Popover>
           <Dock>
-            <DockButton
+            {/* <DockButton
               variant="ghost"
               className="bg-primary/10 hover:bg-primary/20"
               disabled={isScheduling}
@@ -301,9 +340,9 @@ export default function Composer() {
             >
               <Clock className="h-4 w-4 mr-2 text-primary" />
               <span className="text-sm text-primary font-medium">
-                {scheduledDate ? format(scheduledDate, "MMM d") : "Schedule"}
+                {scheduledDate ? formatTz(toZonedTime(scheduledDate, Intl.DateTimeFormat().resolvedOptions().timeZone), "MMM d") : "Schedule"}
               </span>
-            </DockButton>
+            </DockButton> */}
             <DockButton
               variant="default"
               className="bg-primary hover:bg-primary/90 flex gap-2"

@@ -18,6 +18,11 @@ const handler = NextAuth({
       clientId: process.env.TWITTER_CLIENT_ID!,
       clientSecret: process.env.TWITTER_CLIENT_SECRET!,
       version: "2.0",
+      authorization: {
+        params: {
+          scope: "tweet.read tweet.write users.read offline.access",
+        },
+      },
     }),
   ],
   callbacks: {
@@ -115,11 +120,21 @@ const handler = NextAuth({
               name: user.name || "",
               email: user.email || "",
               twitter_handle_id: twitterHandleId,
+              twitter_access_token: account?.access_token,
+              twitter_refresh_token: account?.refresh_token,
+              access_token_expires_at: new Date(
+                (account?.expires_at as number * 1000),
+              ),
             })
             .onConflictDoUpdate({
               target: users.twitter_handle_id,
               set: {
                 name: user.name || "",
+                twitter_access_token: account?.access_token,
+                twitter_refresh_token: account?.refresh_token,
+                access_token_expires_at: new Date(
+                  (account?.expires_at as number * 1000),
+                ),
                 updated_at: new Date(),
               },
             })

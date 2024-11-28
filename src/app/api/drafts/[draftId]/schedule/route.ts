@@ -3,9 +3,11 @@ import { tweetDrafts } from "@/lib/db-schema";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { createTwitterClient } from "../../twitterClient";
 
 export async function POST(req: Request, { params }: { params: { draftId: string } }) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   
   if (!session?.user?.id) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -30,8 +32,8 @@ export async function POST(req: Request, { params }: { params: { draftId: string
     }
 
     // 2. Schedule with Twitter API
-    // TODO: Implement Twitter API scheduling
-    // const twitterResponse = await scheduleTwitterPost(draft.tweet_boxes, scheduledFor);
+    const twitterClient = await createTwitterClient(session.user.id);
+    // const scheduledTweet = await twitterClient.v2.sche(draft.tweet_boxes);
 
     // 3. Update draft status
     const updated = await db

@@ -4,6 +4,8 @@ import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { createTwitterClient } from "../../twitterClient";
+import { TweetBox } from "@/store/drafts";
 
 export async function POST(req: Request, { params }: { params: { draftId: string } }) {
   const session = await getServerSession(authOptions);
@@ -25,8 +27,11 @@ export async function POST(req: Request, { params }: { params: { draftId: string
     }
 
     // 2. Post to Twitter using their API
-    // TODO: Implement Twitter API posting
-    // const twitterResponse = await postToTwitter(draft.tweet_boxes);
+    const twitterClient = await createTwitterClient(session.user.id);
+    await twitterClient.v2.tweetThread((draft.tweet_boxes as TweetBox[]).map((tweetBox) => ({
+      // media: tweetBox.media,
+      text: tweetBox.content,
+    })));
 
     // 3. Update draft status
     const updated = await db

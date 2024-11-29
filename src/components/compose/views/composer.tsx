@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useSession } from "next-auth/react";
-import { Verified, ListPlus, X } from "lucide-react";
+import { Verified, ListPlus, X, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Draft, TweetBox, useDraftsStore } from "@/store/drafts";
+import { Draft, MediaItem, TweetBox, useDraftsStore } from "@/store/drafts";
 import { Dock, DockIcon, DockButton } from "@/components/magicui/dock";
 import { Send, Clock } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -51,6 +51,40 @@ export default function Composer() {
     );
     setHasChanges(true);
   };
+
+  const handleMediaUpload = useCallback(async (boxId: string, files: FileList) => {
+    // TODO: Upload media to s3
+    
+    const validFiles = Array.from(files).filter(file => {
+      if (file.type.startsWith('image/') && file.size > 5 * 1024 * 1024) {
+        toast.error(`Image ${file.name} exceeds 5MB limit`);
+        return false;
+      }
+      if (file.type.startsWith('video/') && file.size > 512 * 1024 * 1024) {
+        toast.error(`Video ${file.name} exceeds 512MB limit`);
+        return false;
+      }
+      return true;
+    });
+
+    const newMedia: MediaItem[] = validFiles.map(file => ({
+      id: crypto.randomUUID(),
+      url: URL.createObjectURL(file),
+      type: file.type.startsWith('image/') ? 'image' : 'video',
+      file
+    }));
+  
+    setLocalContent(prev => prev.map(box => {
+      if (box.id === boxId) {
+        return {
+          ...box,
+          media: [...(box.media || []), ...newMedia].slice(0, 4) // Twitter max 4 media items
+        };
+      }
+      return box;
+    }));
+    setHasChanges(true);
+  }, []);
 
   const addNewBox = (afterId: string) => {
     const newId = Date.now().toString();
@@ -113,9 +147,20 @@ export default function Composer() {
         await updateDraft(activeDraft.id, localContent);
         setHasChanges(false);
       }
+
+      // Create FormData with all media files
+      const formData = new FormData();
+      localContent.forEach(box => {
+        box.media?.forEach(media => {
+          if (media.file) {
+            formData.append(`file-${media.id}`, media.file);
+          }
+        });
+      });
       
       const response = await fetch(`/api/drafts/${activeDraft.id}/post`, {
         method: "POST",
+        body: formData,
       });
 
       if (!response.ok) throw new Error("Failed to post tweets");
@@ -245,7 +290,60 @@ export default function Composer() {
                   target.style.height = `${target.scrollHeight}px`;
                 }}
               />
-              <div className="flex items-center justify-end mt-2 gap-2">
+              {box.media && box.media.length > 0 && (
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {box.media.map((item, i) => (
+                    <div 
+                      key={item.id} 
+                      className={`relative ${
+                        box.media?.length === 1 
+                          ? 'col-span-2' 
+                          : box.media?.length === 3 && i === 0
+                            ? 'row-span-2'
+                            : ''
+                      }`}
+                    >
+                      {item.type === 'image' ? (
+                        <img 
+                          src={item.url} 
+                          alt="" 
+                          className="w-full h-full object-cover rounded-md"
+                        />
+                      ) : (
+                        <video 
+                          src={item.url} 
+                          className="w-full h-full object-cover rounded-md" 
+                          controls
+                        />
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/50 hover:bg-black/70"
+                        onClick={() => {
+                          setLocalContent(prev => prev.map(b => 
+                            b.id === box.id 
+                              ? { ...b, media: b.media?.filter(m => m.id !== item.id) } 
+                              : b
+                          ));
+                          setHasChanges(true);
+                        }}
+                      >
+                        <X className="h-3 w-3 text-white" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex items-center justify-end gap-1 mt-4">
+                <input 
+                  type="file"
+                  id={`media-upload-${box.id}`}
+                  className="hidden"
+                  accept="image/*,video/*"
+                  multiple
+                  onChange={(e) => e.target.files && handleMediaUpload(box.id, e.target.files)}
+                />
                 <div className="relative h-6 w-6">
                   <Progress
                     value={(box.content.length / MAX_CHARS) * 100}
@@ -264,14 +362,22 @@ export default function Composer() {
                     {box.content.length}
                   </span>
                 </div>
-                <div className="text-sm text-muted-foreground">#{index + 1}</div>
+                <div className="text-sm text-muted-foreground h-6 w-6 flex items-center justify-center">#{index + 1}</div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 rounded-full"
+                  className="h-6 w-6"
                   onClick={() => addNewBox(box.id)}
                 >
                   <ListPlus className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => document.getElementById(`media-upload-${box.id}`)?.click()}
+                >
+                  <ImagePlus className="h-4 w-4" />
                 </Button>
               </div>
             </div>

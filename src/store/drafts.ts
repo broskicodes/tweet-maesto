@@ -1,8 +1,17 @@
 import { create } from "zustand";
 
+export interface MediaItem {
+  id: string;
+  url: string; // Local preview URL
+  type: "image" | "video";
+  twitterMediaId?: string; // Set when uploaded to Twitter
+  file: File; // Original file for upload
+};
+
 export interface TweetBox {
   id: string;
   content: string;
+  media?: MediaItem[];
 }
 
 export interface Draft {

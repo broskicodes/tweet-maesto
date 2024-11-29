@@ -6,7 +6,7 @@ export interface MediaItem {
   type: "image" | "video";
   twitterMediaId?: string; // Set when uploaded to Twitter
   file: File; // Original file for upload
-};
+}
 
 export interface TweetBox {
   id: string;

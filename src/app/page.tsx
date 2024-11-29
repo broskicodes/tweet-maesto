@@ -1,5 +1,6 @@
 "use client";
 
+import BannerCTA from "@/components/layout/banner-cta";
 import Footer from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import HeroDash from "@/components/lp/hero-dash";
@@ -13,6 +14,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen w-full bg-background relative">
       <main className="flex-1 flex flex-col h-screen w-full bg-background">
+        <BannerCTA />
         <Header />
         <HeroDash />
         <Problem />

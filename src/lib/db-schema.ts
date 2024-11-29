@@ -110,10 +110,6 @@ export const users = pgTable("users", {
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
   deleted_at: timestamp("deleted_at"),
-  subscribed: boolean("subscribed").default(false),
-  customerId: text("customer_id"),
-  subscriptionId: text("subscription_id"),
-  plan: text("plan"),
 });
 
 export const tweets = pgTable("tweets", {

@@ -8,7 +8,7 @@ import { createTwitterClient } from "../../twitterClient";
 
 export async function POST(req: Request, { params }: { params: { draftId: string } }) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user?.id) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
@@ -21,10 +21,7 @@ export async function POST(req: Request, { params }: { params: { draftId: string
 
     // 1. Get the draft
     const draft = await db.query.tweetDrafts.findFirst({
-      where: and(
-        eq(tweetDrafts.id, params.draftId),
-        eq(tweetDrafts.user_id, session.user.id)
-      ),
+      where: and(eq(tweetDrafts.id, params.draftId), eq(tweetDrafts.user_id, session.user.id)),
     });
 
     if (!draft) {
@@ -43,10 +40,7 @@ export async function POST(req: Request, { params }: { params: { draftId: string
         scheduled_for: new Date(scheduledFor),
         updated_at: new Date(),
       })
-      .where(and(
-        eq(tweetDrafts.id, params.draftId),
-        eq(tweetDrafts.user_id, session.user.id)
-      ))
+      .where(and(eq(tweetDrafts.id, params.draftId), eq(tweetDrafts.user_id, session.user.id)))
       .returning();
 
     return NextResponse.json(updated[0]);
@@ -54,4 +48,4 @@ export async function POST(req: Request, { params }: { params: { draftId: string
     console.error("Failed to schedule tweet:", error);
     return new NextResponse("Failed to schedule tweet", { status: 500 });
   }
-} 
+}

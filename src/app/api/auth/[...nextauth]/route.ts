@@ -122,9 +122,7 @@ const handler = NextAuth({
               twitter_handle_id: twitterHandleId,
               twitter_access_token: account?.access_token,
               twitter_refresh_token: account?.refresh_token,
-              access_token_expires_at: new Date(
-                (account?.expires_at as number * 1000),
-              ),
+              access_token_expires_at: new Date((account?.expires_at as number) * 1000),
             })
             .onConflictDoUpdate({
               target: users.twitter_handle_id,
@@ -132,9 +130,7 @@ const handler = NextAuth({
                 name: user.name || "",
                 twitter_access_token: account?.access_token,
                 twitter_refresh_token: account?.refresh_token,
-                access_token_expires_at: new Date(
-                  (account?.expires_at as number * 1000),
-                ),
+                access_token_expires_at: new Date((account?.expires_at as number) * 1000),
                 updated_at: new Date(),
               },
             })

@@ -26,7 +26,7 @@ export const MainView: FC<MainViewProps> = ({ onLeftToggle, onRightToggle }) => 
   const { currentView } = useViewStore();
 
   return (
-    <section className="flex-1 h-screen w-full flex flex-col">
+    <section className="flex-1 w-full flex flex-col">
       <div className="flex items-center justify-between p-2 h-14 flex-shrink-0">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onLeftToggle}>
           <PanelLeft className="h-4 w-4" />

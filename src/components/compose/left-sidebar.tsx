@@ -68,7 +68,7 @@ export const LeftSidebar: FC = () => {
   const { currentView, setView } = useViewStore();
   const [showPricing, setShowPricing] = useState(false);
   return (
-    <div className="relative h-[calc(100vh)]">
+    <div className="relative h-[calc(100vh-3rem)]">
       <Sidebar side="left" collapsible="offcanvas" className="!absolute !h-full">
         <SidebarHeader className="h-14 border-b flex items-center px-4">
           {session?.user && (

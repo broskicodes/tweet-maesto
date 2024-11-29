@@ -63,7 +63,10 @@ export async function POST(request: Request) {
         price_id === process.env.NEXT_PUBLIC_MPID_20
       ) {
         await db.insert(subscriptions).values({
-          id: plan === "lifetime" ? sessionWithLineItems.id : sessionWithLineItems.subscription as string,
+          id:
+            plan === "lifetime"
+              ? sessionWithLineItems.id
+              : (sessionWithLineItems.subscription as string),
           user_id: user_id,
           price_id: price_id as string,
           type: plan as "lifetime" | "monthly",

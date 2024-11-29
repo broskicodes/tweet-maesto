@@ -10,7 +10,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 export async function POST(request: Request) {
-  const { user, priceId, plan } = await request.json();
+  const { user, priceId, plan, tolt_referral } = await request.json();
 
   console.log("Received user data:", user);
 
@@ -28,6 +28,7 @@ export async function POST(request: Request) {
       user_id: user.id,
       handle: user.handle,
       plan: plan,
+      tolt_referral,
     },
     // allow_promotion_codes: true,
   });

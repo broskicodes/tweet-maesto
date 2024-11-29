@@ -50,6 +50,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+        <script async src="/tolt.js" data-tolt="ee373e8c-2535-434f-aaa9-073ccd6cc712"></script>
       </head>
       <body
         className={cn(

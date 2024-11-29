@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PricingModal } from "@/components/layout/pricing-modal";
 import posthog from "posthog-js";
+import BannerCTA from "@/components/layout/banner-cta";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
@@ -22,6 +23,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col min-h-screen w-full bg-background relative">
       <main className="flex-1 flex flex-col h-screen w-full bg-background">
+        <BannerCTA /> 
         <Header />
         {!session && (
           <div className="flex justify-center items-center h-full flex-1">

@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
 
 interface PricingPlan {
-  type: 'lifetime' | 'monthly';
+  type: "lifetime" | "monthly";
   title: string;
   subtitle: string;
   price: number;
@@ -40,7 +40,7 @@ export function PricingCard({ className }: { className?: string }) {
   const plans: PricingPlan[] = useMemo(
     () => [
       {
-        type: 'monthly',
+        type: "monthly",
         title: "Monthly",
         subtitle: "Flexible monthly subscription",
         price: monthlyPrice,
@@ -55,7 +55,7 @@ export function PricingCard({ className }: { className?: string }) {
         ],
       },
       {
-        type: 'lifetime',
+        type: "lifetime",
         title: "Lifetime",
         subtitle: "Access all current and future features",
         recommended: true,
@@ -72,7 +72,16 @@ export function PricingCard({ className }: { className?: string }) {
         ],
       },
     ],
-    [lifetimePrice, nextLifetimePrice, monthlyPrice, nextMonthlyPrice, progressValue, remainingPurchases, lifetimePriceId, monthlyPriceId]
+    [
+      lifetimePrice,
+      nextLifetimePrice,
+      monthlyPrice,
+      nextMonthlyPrice,
+      progressValue,
+      remainingPurchases,
+      lifetimePriceId,
+      monthlyPriceId,
+    ],
   );
 
   useEffect(() => {
@@ -128,7 +137,13 @@ export function PricingCard({ className }: { className?: string }) {
     setIsLoading(true);
     const response = await fetch("/api/stripe/checkout", {
       method: "POST",
-      body: JSON.stringify({ priceId, user: session?.user, plan: planType }),
+      body: JSON.stringify({
+        priceId,
+        user: session?.user,
+        plan: planType,
+        // @ts-ignore
+        tolt_referral: window.tolt_referral,
+      }),
     });
 
     if (response.ok) {
@@ -154,12 +169,10 @@ export function PricingCard({ className }: { className?: string }) {
   return (
     <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto ${className}`}>
       {plans.map((plan) => (
-        <Card 
-          key={plan.type} 
+        <Card
+          key={plan.type}
           className={`w-full bg-white border-2 ${
-            plan.recommended 
-              ? "border-primary relative" 
-              : "border-muted"
+            plan.recommended ? "border-primary relative" : "border-muted"
           }`}
         >
           {plan.recommended && (
@@ -175,7 +188,7 @@ export function PricingCard({ className }: { className?: string }) {
             <div className="flex items-baseline justify-center space-x-2">
               <span className="text-5xl font-extrabold">${plan.price}</span>
               <span className="text-muted-foreground">
-                {plan.type === 'monthly' ? '/month' : ' once'}
+                {plan.type === "monthly" ? "/month" : " once"}
               </span>
             </div>
             {plan.progressValue !== undefined && (
@@ -183,7 +196,8 @@ export function PricingCard({ className }: { className?: string }) {
                 <Progress value={plan.progressValue} className="h-3 w-full" />
                 <div className="flex justify-center text-xs text-muted-foreground">
                   <span>
-                    Price increases to ${plan.nextPrice} after {plan.remainingPurchases} more purchases
+                    Price increases to ${plan.nextPrice} after {plan.remainingPurchases} more
+                    purchases
                   </span>
                 </div>
               </div>

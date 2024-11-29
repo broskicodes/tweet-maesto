@@ -144,7 +144,7 @@ export const RightSidebar: FC = () => {
                     <Plus className="h-4 w-4" />
                     Create new draft
                   </div>
-                  <ScrollArea className="h-[calc(100vh-8rem)]">
+                  <ScrollArea className="h-[calc(100%-8rem)]">
                     <TabsContent value="drafts" className="mt-0">
                       {renderTweets("drafts")}
                     </TabsContent>
@@ -198,7 +198,7 @@ export const RightSidebar: FC = () => {
   };
 
   return (
-    <div className="relative h-[calc(100vh)]">
+    <div className="relative h-[calc(100vh-3rem)]">
       <Sidebar side="right" collapsible="offcanvas" className="!absolute !h-full">
         {renderContent()}
       </Sidebar>

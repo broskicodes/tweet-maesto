@@ -23,9 +23,14 @@ function PostHogIdentify() {
 
   useEffect(() => {
     if (session?.user?.id) {
+      // @ts-ignore
+      if (window.tolt_referral) {
+        // @ts-ignore
+        window.tolt.signup(`@${session.user.handle}`);
+      }
       posthog.identify(session.user.id, {
         handle: session.user.handle,
-        name: session.user.name || undefined,
+        // name: session.user.name || undefined,
       });
     }
   }, [session]);

@@ -14,13 +14,14 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { addMinutes, setHours, setMinutes } from "date-fns";
-import { toZonedTime, format as formatTz, fromZonedTime } from 'date-fns-tz';
+import { toZonedTime, format as formatTz, fromZonedTime } from "date-fns-tz";
 
 const MAX_CHARS = 280;
 
 export default function Composer() {
   const { data: session } = useSession();
-  const { activeDraft, isLoading, isFetched, loadDrafts, updateDraft, setActiveDraft } = useDraftsStore();
+  const { activeDraft, isLoading, isFetched, loadDrafts, updateDraft, setActiveDraft } =
+    useDraftsStore();
   const [localContent, setLocalContent] = useState<TweetBox[]>([{ id: "1", content: "" }]);
   const [hasChanges, setHasChanges] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -55,34 +56,36 @@ export default function Composer() {
   const handleMediaUpload = useCallback(async (boxId: string, files: FileList) => {
     // TODO: Upload media to s3
 
-    const validFiles = Array.from(files).filter(file => {
-      if (file.type.startsWith('image/') && file.size > 5 * 1024 * 1024) {
+    const validFiles = Array.from(files).filter((file) => {
+      if (file.type.startsWith("image/") && file.size > 5 * 1024 * 1024) {
         toast.error(`Image ${file.name} exceeds 5MB limit`);
         return false;
       }
-      if (file.type.startsWith('video/') && file.size > 512 * 1024 * 1024) {
+      if (file.type.startsWith("video/") && file.size > 512 * 1024 * 1024) {
         toast.error(`Video ${file.name} exceeds 512MB limit`);
         return false;
       }
       return true;
     });
 
-    const newMedia: MediaItem[] = validFiles.map(file => ({
+    const newMedia: MediaItem[] = validFiles.map((file) => ({
       id: crypto.randomUUID(),
       url: URL.createObjectURL(file),
-      type: file.type.startsWith('image/') ? 'image' : 'video',
-      file
+      type: file.type.startsWith("image/") ? "image" : "video",
+      file,
     }));
-  
-    setLocalContent(prev => prev.map(box => {
-      if (box.id === boxId) {
-        return {
-          ...box,
-          media: [...(box.media || []), ...newMedia].slice(0, 4) // Twitter max 4 media items
-        };
-      }
-      return box;
-    }));
+
+    setLocalContent((prev) =>
+      prev.map((box) => {
+        if (box.id === boxId) {
+          return {
+            ...box,
+            media: [...(box.media || []), ...newMedia].slice(0, 4), // Twitter max 4 media items
+          };
+        }
+        return box;
+      }),
+    );
     setHasChanges(true);
   }, []);
 
@@ -138,10 +141,10 @@ export default function Composer() {
 
   const handlePost = async () => {
     if (!activeDraft || !session?.user?.id) return;
-    
+
     try {
       setIsPosting(true);
-      
+
       // Save any pending changes first
       if (hasChanges) {
         await updateDraft(activeDraft.id, localContent);
@@ -150,14 +153,14 @@ export default function Composer() {
 
       // Create FormData with all media files
       const formData = new FormData();
-      localContent.forEach(box => {
-        box.media?.forEach(media => {
+      localContent.forEach((box) => {
+        box.media?.forEach((media) => {
           if (media.file) {
             formData.append(`file-${media.id}`, media.file);
           }
         });
       });
-      
+
       const response = await fetch(`/api/drafts/${activeDraft.id}/post`, {
         method: "POST",
         body: formData,
@@ -176,24 +179,27 @@ export default function Composer() {
 
   const handleSchedule = async () => {
     if (!activeDraft || !session?.user?.id || !scheduledDate) return;
-    
+
     try {
       // Save any pending changes first
       if (hasChanges) {
         await updateDraft(activeDraft.id, localContent);
         setHasChanges(false);
       }
-      
-      const [hours, minutes] = scheduleTime.split(':').map(Number);
-      
+
+      const [hours, minutes] = scheduleTime.split(":").map(Number);
+
       // Create a new date in local timezone
-      const localDate = toZonedTime(scheduledDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
+      const localDate = toZonedTime(
+        scheduledDate,
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+      );
       localDate.setHours(hours);
       localDate.setMinutes(minutes);
-      
+
       // Convert to UTC for API
       const utcDate = fromZonedTime(localDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
-      
+
       const minScheduleTime = addMinutes(new Date(), 5);
       if (utcDate < minScheduleTime) {
         toast.error("Schedule time must be at least 5 minutes in the future");
@@ -211,7 +217,9 @@ export default function Composer() {
 
       if (!response.ok) throw new Error("Failed to schedule tweets");
       setActiveDraft({ ...activeDraft, status: "scheduled" });
-      toast.success(`Scheduled for ${formatTz(utcDate, "PPP 'at' p", { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone })}`);
+      toast.success(
+        `Scheduled for ${formatTz(utcDate, "PPP 'at' p", { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone })}`,
+      );
       setScheduledDate(utcDate);
       setIsCalendarOpen(false);
     } catch (error) {
@@ -293,26 +301,26 @@ export default function Composer() {
               {box.media && box.media.length > 0 && (
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {box.media.map((item, i) => (
-                    <div 
-                      key={item.id} 
+                    <div
+                      key={item.id}
                       className={`relative ${
-                        box.media?.length === 1 
-                          ? 'col-span-2' 
+                        box.media?.length === 1
+                          ? "col-span-2"
                           : box.media?.length === 3 && i === 0
-                            ? 'row-span-2'
-                            : ''
+                            ? "row-span-2"
+                            : ""
                       }`}
                     >
-                      {item.type === 'image' ? (
-                        <img 
-                          src={item.url} 
-                          alt="" 
+                      {item.type === "image" ? (
+                        <img
+                          src={item.url}
+                          alt=""
                           className="w-full h-full object-cover rounded-md"
                         />
                       ) : (
-                        <video 
-                          src={item.url} 
-                          className="w-full h-full object-cover rounded-md" 
+                        <video
+                          src={item.url}
+                          className="w-full h-full object-cover rounded-md"
                           controls
                         />
                       )}
@@ -321,11 +329,13 @@ export default function Composer() {
                         size="icon"
                         className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/50 hover:bg-black/70"
                         onClick={() => {
-                          setLocalContent(prev => prev.map(b => 
-                            b.id === box.id 
-                              ? { ...b, media: b.media?.filter(m => m.id !== item.id) } 
-                              : b
-                          ));
+                          setLocalContent((prev) =>
+                            prev.map((b) =>
+                              b.id === box.id
+                                ? { ...b, media: b.media?.filter((m) => m.id !== item.id) }
+                                : b,
+                            ),
+                          );
                           setHasChanges(true);
                         }}
                       >
@@ -336,7 +346,7 @@ export default function Composer() {
                 </div>
               )}
               <div className="flex items-center justify-end gap-1 mt-4">
-                <input 
+                <input
                   type="file"
                   id={`media-upload-${box.id}`}
                   className="hidden"
@@ -349,20 +359,22 @@ export default function Composer() {
                     value={(box.content.length / MAX_CHARS) * 100}
                     className="h-6 w-6 rounded-full"
                     color={
-                      box.content.length >= MAX_CHARS 
-                        ? "destructive" 
-                        : box.content.length >= MAX_CHARS - 20 
-                          ? "warning" 
+                      box.content.length >= MAX_CHARS
+                        ? "destructive"
+                        : box.content.length >= MAX_CHARS - 20
+                          ? "warning"
                           : "primary"
                     }
                   />
-                  <span 
+                  <span
                     className={`absolute inset-0 flex items-center justify-center text-[10px] font-medium ${getCharCountColor(box.content.length)}`}
                   >
                     {box.content.length}
                   </span>
                 </div>
-                <div className="text-sm text-muted-foreground h-6 w-6 flex items-center justify-center">#{index + 1}</div>
+                <div className="text-sm text-muted-foreground h-6 w-6 flex items-center justify-center">
+                  #{index + 1}
+                </div>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -397,20 +409,30 @@ export default function Composer() {
                   <div className="flex gap-2">
                     <Input
                       type="date"
-                      value={scheduledDate ? formatTz(toZonedTime(scheduledDate, Intl.DateTimeFormat().resolvedOptions().timeZone), "yyyy-MM-dd") : ""}
+                      value={
+                        scheduledDate
+                          ? formatTz(
+                              toZonedTime(
+                                scheduledDate,
+                                Intl.DateTimeFormat().resolvedOptions().timeZone,
+                              ),
+                              "yyyy-MM-dd",
+                            )
+                          : ""
+                      }
                       min={formatTz(new Date(), "yyyy-MM-dd")}
                       onChange={(e) => {
                         if (e.target.value) {
                           // Create date in local timezone
-                          const [year, month, day] = e.target.value.split('-').map(Number);
+                          const [year, month, day] = e.target.value.split("-").map(Number);
                           const localDate = new Date(year, month - 1, day);
-                          
+
                           // If there's an existing scheduled date, preserve the time
                           if (scheduledDate) {
                             localDate.setHours(scheduledDate.getHours());
                             localDate.setMinutes(scheduledDate.getMinutes());
                           }
-                          
+
                           setScheduledDate(localDate);
                         }
                       }}
@@ -427,11 +449,7 @@ export default function Composer() {
                     className="w-full"
                   />
                 </div>
-                <Button 
-                  className="w-full"
-                  onClick={handleSchedule}
-                  disabled={isScheduling}
-                >
+                <Button className="w-full" onClick={handleSchedule} disabled={isScheduling}>
                   {isScheduling ? "Scheduling..." : "Schedule Tweet"}
                 </Button>
               </div>

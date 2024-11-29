@@ -110,6 +110,10 @@ export const users = pgTable("users", {
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
   deleted_at: timestamp("deleted_at"),
+  subscribed: boolean("subscribed").default(false),
+  customerId: text("customer_id"),
+  subscriptionId: text("subscription_id"),
+  plan: text("plan"),
 });
 
 export const tweets = pgTable("tweets", {
@@ -148,7 +152,7 @@ export const jobs = pgTable("jobs", {
   updated_at: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const subscriptionType = pgEnum("subscription_type", ["lifetime"]);
+export const subscriptionType = pgEnum("subscription_type", ["lifetime", "monthly"]);
 
 export const subscriptions = pgTable("subscriptions", {
   id: text("id").primaryKey().notNull(),

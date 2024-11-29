@@ -4,7 +4,7 @@ import { useViewStore } from "@/store/views";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FileText, Calendar, Loader2, Plus, MoreHorizontal, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useDraftsStore } from "@/store/drafts";
+import { Draft, useDraftsStore } from "@/store/drafts";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
@@ -13,14 +13,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-
-interface Draft {
-  id: string;
-  tweet_boxes: { id: string; content: string }[];
-  created_at: Date;
-  updated_at: Date;
-  status: "draft" | "scheduled" | "posted";
-}
 
 export const RightSidebar: FC = () => {
   const { currentView } = useViewStore();

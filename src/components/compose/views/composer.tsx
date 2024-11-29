@@ -54,7 +54,7 @@ export default function Composer() {
 
   const handleMediaUpload = useCallback(async (boxId: string, files: FileList) => {
     // TODO: Upload media to s3
-    
+
     const validFiles = Array.from(files).filter(file => {
       if (file.type.startsWith('image/') && file.size > 5 * 1024 * 1024) {
         toast.error(`Image ${file.name} exceeds 5MB limit`);
@@ -353,7 +353,7 @@ export default function Composer() {
                         ? "destructive" 
                         : box.content.length >= MAX_CHARS - 20 
                           ? "warning" 
-                          : "default"
+                          : "primary"
                     }
                   />
                   <span 

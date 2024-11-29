@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useViewStore, type View } from "@/store/views";
+import { PricingModal } from "../layout/pricing-modal";
+import posthog from "posthog-js";
 
 const links = [
   {
@@ -43,6 +45,11 @@ const links = [
 
 const navItems = [
   {
+    title: "Planner",
+    view: "planner" as View,
+    icon: <GalleryVerticalEnd className="h-4 w-4" />,
+  },
+  {
     title: "Compose",
     view: "compose" as View,
     icon: <PenSquare className="h-4 w-4" />,
@@ -52,11 +59,6 @@ const navItems = [
     view: "calendar" as View,
     icon: <Calendar className="h-4 w-4" />,
   },
-  {
-    title: "Planner",
-    view: "planner" as View,
-    icon: <GalleryVerticalEnd className="h-4 w-4" />,
-  },
 ];
 
 export const LeftSidebar: FC = () => {
@@ -64,7 +66,7 @@ export const LeftSidebar: FC = () => {
   const isSubscribed = session?.user?.subscribed;
   const [footerOpen, setFooterOpen] = useState(true);
   const { currentView, setView } = useViewStore();
-
+  const [showPricing, setShowPricing] = useState(false);
   return (
     <div className="relative h-[calc(100vh)]">
       <Sidebar side="left" collapsible="offcanvas" className="!absolute !h-full">
@@ -172,7 +174,17 @@ export const LeftSidebar: FC = () => {
               </nav>
               <div className="p-2">
                 {session && (
-                  <Button variant={"default"} className="w-full" disabled={!!isSubscribed}>
+                  <Button
+                    onClick={() => {
+                      posthog.capture("upgrade-popup", {
+                        trigger: "compose-sidebar",
+                      });
+                      setShowPricing(true);
+                    }}
+                    variant={"default"}
+                    className="w-full"
+                    disabled={!!isSubscribed}
+                  >
                     <Sparkles className="mr-2 h-4 w-4" />
                     {isSubscribed ? "Thanks for Supporting!" : "Upgrade to Pro"}
                   </Button>
@@ -182,6 +194,7 @@ export const LeftSidebar: FC = () => {
           </div>
         </div>
       </Sidebar>
+      <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
     </div>
   );
 };

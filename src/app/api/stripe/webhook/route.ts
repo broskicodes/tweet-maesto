@@ -43,6 +43,7 @@ export async function POST(request: Request) {
       const price_id = lineItems?.data[0].price?.id;
       const user_id = sessionWithLineItems.metadata?.user_id;
       const user_email = sessionWithLineItems.customer_details?.email;
+      const plan = sessionWithLineItems.metadata?.plan;
 
       console.log("User ID:", user_id);
       console.log("Email:", user_email);
@@ -52,16 +53,20 @@ export async function POST(request: Request) {
         return new Response("Invalid user ID", { status: 400 });
       }
 
+      console.log();
       if (
         price_id === process.env.NEXT_PUBLIC_PRICE_ID_10 ||
         price_id === process.env.NEXT_PUBLIC_PRICE_ID_30 ||
-        price_id === process.env.NEXT_PUBLIC_PRICE_ID_50
+        price_id === process.env.NEXT_PUBLIC_PRICE_ID_50 ||
+        price_id === process.env.NEXT_PUBLIC_PRICE_ID_100 ||
+        price_id === process.env.NEXT_PUBLIC_MPID_10 ||
+        price_id === process.env.NEXT_PUBLIC_MPID_20
       ) {
         await db.insert(subscriptions).values({
-          id: sessionWithLineItems.id,
+          id: plan === "lifetime" ? sessionWithLineItems.id : sessionWithLineItems.subscription as string,
           user_id: user_id,
           price_id: price_id as string,
-          type: "lifetime",
+          type: plan as "lifetime" | "monthly",
           active: true,
           customer_id: sessionWithLineItems.customer as string,
         });
@@ -92,6 +97,14 @@ export async function POST(request: Request) {
 
         posthog.shutdown();
       }
+      break;
+    case "customer.subscription.deleted":
+      console.log(event.data.object);
+      const subscription = event.data.object as Stripe.Subscription;
+      await db
+        .update(subscriptions)
+        .set({ active: false })
+        .where(eq(subscriptions.id, subscription.id));
       break;
     default:
       return new Response(`Unhandled event type ${event.type}`, { status: 400 });

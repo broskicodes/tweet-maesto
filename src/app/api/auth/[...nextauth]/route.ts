@@ -15,12 +15,12 @@ const posthog = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
 const handler = NextAuth({
   providers: [
     TwitterProvider({
-      clientId: process.env.TWITTER_CLIENT_ID!,
-      clientSecret: process.env.TWITTER_CLIENT_SECRET!,
-      version: "2.0",
+      clientId: process.env.TWITTER_API_KEY!,
+      clientSecret: process.env.TWITTER_API_SECRET_KEY!,
+      version: "1.0",
       authorization: {
         params: {
-          scope: "tweet.read tweet.write users.read offline.access",
+          scope: "read write",
         },
       },
     }),
@@ -86,7 +86,7 @@ const handler = NextAuth({
     async signIn({ user, account, profile }) {
       console.log("signIn", user, account, profile);
 
-      const profileData = (profile as any).data;
+      const profileData = (profile as any);
 
       if (user && user.id && profileData) {
         try {
@@ -95,23 +95,27 @@ const handler = NextAuth({
             .insert(twitterHandles)
             .values({
               id: BigInt(user.id),
-              handle: profileData.username as string,
+              handle: profileData.screen_name as string,
               name: profileData.name as string,
-              url: `https://x.com/${profileData.username}`,
+              description: profileData.description as string,
+              url: `https://x.com/${profileData.screen_name}`,
               pfp: profileData.profile_image_url as string,
             })
             .onConflictDoUpdate({
               target: twitterHandles.id,
               set: {
-                handle: profileData.username as string,
-                url: `https://x.com/${profileData.username}`,
+                handle: profileData.screen_name as string,
+                name: profileData.name as string,
+                description: profileData.description as string,
+                url: `https://x.com/${profileData.screen_name}`,
+                pfp: profileData.profile_image_url as string,
                 updated_at: new Date(),
               },
             })
             .returning({ id: twitterHandles.id });
 
           const twitterHandleId = upsertedHandle.id;
-          console.log(`Twitter handle ${profileData.username} upserted with ID:`, twitterHandleId);
+          console.log(`Twitter handle ${profileData.screen_name} upserted with ID:`, twitterHandleId);
 
           // Upsert the user
           const [{ id: upsertedUserId, created_at: createdAt }] = await db
@@ -120,17 +124,16 @@ const handler = NextAuth({
               name: user.name || "",
               email: user.email || "",
               twitter_handle_id: twitterHandleId,
-              twitter_access_token: account?.access_token,
-              twitter_refresh_token: account?.refresh_token,
-              access_token_expires_at: new Date((account?.expires_at as number) * 1000),
+              oauth_token: account?.oauth_token as string,
+              oauth_token_secret: account?.oauth_token_secret as string,
             })
             .onConflictDoUpdate({
               target: users.twitter_handle_id,
               set: {
                 name: user.name || "",
-                twitter_access_token: account?.access_token,
-                twitter_refresh_token: account?.refresh_token,
-                access_token_expires_at: new Date((account?.expires_at as number) * 1000),
+                email: user.email || "",
+                oauth_token: account?.oauth_token as string,
+                oauth_token_secret: account?.oauth_token_secret as string,
                 updated_at: new Date(),
               },
             })
@@ -139,9 +142,9 @@ const handler = NextAuth({
           console.log(`User upserted with ID:`, upsertedUserId);
 
           posthog.identify({
-            distinctId: user.id,
+            distinctId: upsertedUserId,
             properties: {
-              handle: profileData.username,
+              handle: profileData.screen_name,
             },
           });
 
@@ -153,7 +156,7 @@ const handler = NextAuth({
           posthog.shutdown();
           // Check if this is a new user
           if (createdAt && new Date().getTime() - createdAt.getTime() <= 30000) {
-            console.log("Initializing Twitter handle:", profileData.username);
+            console.log("Initializing Twitter handle:", profileData.screen_name);
             const jobResponse = await fetch(
               `${process.env.NEXT_PUBLIC_SCRAPER_URL}/twitter/scrape`,
               {
@@ -163,7 +166,7 @@ const handler = NextAuth({
                 },
                 body: JSON.stringify({
                   scrapeType: TwitterScrapeType.Initialize,
-                  handles: [profileData.username],
+                  handles: [profileData.screen_name],
                 }),
               },
             );

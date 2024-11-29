@@ -10,21 +10,21 @@ import { SIGNUP_EVENT } from "@/lib/types";
 
 const links = [
   {
+    title: "Composer",
+    link: "/compose",
+  },
+  {
     title: "Dashboard",
     link: "/dashboard",
   },
-  {
-    title: "Idea Generator",
-    link: "/ideas",
-  },
+  // {
+  //   title: "Idea Generator",
+  //   link: "/ideas",
+  // },
   {
     title: "Pricing",
     link: "/#pricing",
   },
-  // {
-  //   title: "Blog",
-  //   link: "/blog",
-  // },
 ];
 
 export function Header() {

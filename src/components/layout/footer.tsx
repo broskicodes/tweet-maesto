@@ -6,12 +6,12 @@ const footerNavs = [
     label: "Product",
     items: [
       {
-        href: "/dashboard",
-        name: "Dashboard",
+        href: "/compose",
+        name: "Composer",
       },
       {
-        href: "/ideas",
-        name: "Idea Generator",
+        href: "/dashboard",
+        name: "Dashboard",
       },
       // {
       //   href: "/map",

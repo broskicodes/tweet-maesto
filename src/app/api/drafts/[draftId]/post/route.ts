@@ -31,12 +31,6 @@ export async function POST(req: Request, { params }: { params: { draftId: string
       return new NextResponse("Draft not found", { status: 404 });
     }
 
-    const uploadClient = new TwitterApi({
-      appKey: process.env.TWITTER_API_KEY!,
-      appSecret: process.env.TWITTER_API_SECRET_KEY!,
-      accessToken: process.env.TWITTER_ACCESS_TOKEN!,
-      accessSecret: process.env.TWITTER_ACCESS_SECRET!,
-    });
     const twitterClient = await createTwitterClient(session.user.id);
     const tweetBoxes = draft.tweet_boxes as TweetBox[];
 
@@ -57,14 +51,7 @@ export async function POST(req: Request, { params }: { params: { draftId: string
             const buffer = await file.arrayBuffer();
 
             try {
-              // Log the file details for debugging
-              // console.log('Uploading media:', {
-              //   type: file.type,
-              //   size: file.size,
-              //   name: file.name
-              // });
-
-              const mediaId = await uploadClient.v1.uploadMedia(Buffer.from(buffer), {
+              const mediaId = await twitterClient.v1.uploadMedia(Buffer.from(buffer), {
                 mimeType: file.type,
                 target: "tweet",
                 shared: false,
@@ -90,12 +77,8 @@ export async function POST(req: Request, { params }: { params: { draftId: string
       }),
     );
 
-    console.log(processedTweets[0].media?.media_ids[0]);
-    // const info = await uploadClient.v1.mediaInfo(processedTweets[0].media?.media_ids[0]!);
-    // console.log(JSON.stringify(info, null, 2));
-
     // 3. Post the thread with media
-    await uploadClient.v2.tweetThread(processedTweets);
+    await twitterClient.v2.tweetThread(processedTweets);
 
     // 4. Update draft status
     const updated = await db

@@ -104,9 +104,8 @@ export const users = pgTable("users", {
     .notNull()
     .unique(),
   onboarded: boolean("onboarded").notNull().default(false),
-  twitter_access_token: text("twitter_access_token"),
-  twitter_refresh_token: text("twitter_refresh_token"),
-  access_token_expires_at: timestamp("access_token_expires_at"),
+  oauth_token: text("oauth_token"),
+  oauth_token_secret: text("oauth_token_secret"),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
   deleted_at: timestamp("deleted_at"),

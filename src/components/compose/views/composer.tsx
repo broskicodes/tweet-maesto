@@ -39,6 +39,7 @@ export default function Composer() {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [scheduleTime, setScheduleTime] = useState("12:00");
   const [uploadingBoxId, setUploadingBoxId] = useState<string | null>(null);
+  const [showPostConfirm, setShowPostConfirm] = useState(false);
 
   // Only sync from activeDraft on initial load or when switching drafts
   useEffect(() => {
@@ -545,6 +546,15 @@ export default function Composer() {
               </div>
             </PopoverContent>
           </Popover>
+          <Popover open={showPostConfirm} onOpenChange={setShowPostConfirm}>
+            <PopoverTrigger asChild>
+              <button className="absolute bottom-12 left-1/2 w-0 h-0" />
+            </PopoverTrigger>
+            <PopoverContent>
+              <p className="text-lg font-medium mb-4">Posting {localContent.length} tweet thread to @{session?.user?.handle}</p>
+              <Button className="w-full" onClick={() => { setShowPostConfirm(false); handlePost() }} disabled={isPosting}>Confirm</Button>
+            </PopoverContent>
+          </Popover>
           <Dock>
             {/* <DockButton
               variant="ghost"
@@ -560,7 +570,7 @@ export default function Composer() {
             <DockButton
               variant="default"
               className="bg-primary hover:bg-primary/90 flex gap-2"
-              onClick={handlePost}
+              onClick={() => setShowPostConfirm(true)}
               disabled={isPosting || isScheduling || cannotEdit}
             >
               {isPosting ? (

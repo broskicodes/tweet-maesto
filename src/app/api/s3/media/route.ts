@@ -36,8 +36,8 @@ export async function GET(req: Request) {
   }
 }
 
-export const config = {
-  api: {
-    responseLimit: false,
-  },
-};
+// export const config = {
+//   api: {
+//     responseLimit: false,
+//   },
+// };

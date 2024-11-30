@@ -45,7 +45,7 @@ export default function Composer() {
       // Don't override local changes
       setLocalContent(activeDraft.tweet_boxes);
     }
-  }, [activeDraft?.id]); // Only depend on draft ID to prevent unnecessary updates
+  }, [activeDraft, hasChanges]); // Only depend on draft ID to prevent unnecessary updates
 
   const handleContentChange = (id: string, newContent: string) => {
     setLocalContent((prev) =>
@@ -127,7 +127,7 @@ export default function Composer() {
     } finally {
       setUploadingBoxId(null);
     }
-  }, [activeDraft?.id, session?.user?.id]);
+  }, [activeDraft?.id]);
 
   const addNewBox = (afterId: string) => {
     const newId = Date.now().toString();
@@ -168,7 +168,7 @@ export default function Composer() {
     }, 3000);
 
     return () => clearInterval(timer);
-  }, [hasChanges, activeDraft?.id, localContent, session?.user?.id, updateDraft]);
+  }, [hasChanges, activeDraft, localContent, session?.user?.id, updateDraft]);
 
   // Save on unmount if there are pending changes
   useEffect(() => {
@@ -177,7 +177,7 @@ export default function Composer() {
         updateDraft(activeDraft.id, localContent);
       }
     };
-  }, [hasChanges, activeDraft?.id, localContent, updateDraft]);
+  }, [hasChanges, activeDraft, localContent, updateDraft]);
 
   const handlePost = async () => {
     if (!activeDraft || !session?.user?.id) return;

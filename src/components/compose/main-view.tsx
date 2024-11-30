@@ -27,7 +27,7 @@ export const MainView: FC<MainViewProps> = ({ onLeftToggle, onRightToggle }) => 
 
   return (
     <section className="flex-1 h-[calc(100vh-3rem)] w-full flex flex-col">
-      <div className="flex items-center justify-between p-2 h-14 flex-shrink-0">
+      <div className="flex items-center justify-between p-2 h-14 shrink-0">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onLeftToggle}>
           <PanelLeft className="h-4 w-4" />
         </Button>

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useSession } from "next-auth/react";
-import { Verified, ListPlus, X, ImagePlus } from "lucide-react";
+import { Verified, ListPlus, X, ImagePlus, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Draft, MediaItem, TweetBox, useDraftsStore } from "@/store/drafts";
 import { Dock, DockIcon, DockButton } from "@/components/magicui/dock";
@@ -550,9 +550,30 @@ export default function Composer() {
             <PopoverTrigger asChild>
               <button className="absolute bottom-12 left-1/2 w-0 h-0" />
             </PopoverTrigger>
-            <PopoverContent>
-              <p className="text-lg font-medium mb-4">Posting {localContent.length} tweet thread to @{session?.user?.handle}</p>
-              <Button className="w-full" onClick={() => { setShowPostConfirm(false); handlePost() }} disabled={isPosting}>Confirm</Button>
+            <PopoverContent className="w-full max-w-md">
+              <div className="flex flex-col items-center text-center p-2">
+                <h3 className="text-xl font-semibold mb-2">Ready to Post?</h3>
+                <p className="text-muted-foreground mb-4">
+                  {localContent.length} tweet thread posting to @{session?.user?.handle}
+                </p>
+                
+                {!session?.user?.subscribed && (
+                  <div className="flex items-center gap-2 mb-4 p-3 bg-muted/50 rounded-lg w-full">
+                    <span className="text-sm text-muted-foreground text-left">
+                      Note: Free tier accounts will have a link to Tweet Maestro appended to their thread
+                    </span>
+                  </div>
+                )}
+
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={() => { setShowPostConfirm(false); handlePost() }} 
+                  disabled={isPosting}
+                >
+                  {isPosting ? 'Posting...' : 'Post Now'}
+                </Button>
+              </div>
             </PopoverContent>
           </Popover>
           <Dock>

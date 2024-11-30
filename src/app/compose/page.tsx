@@ -22,7 +22,11 @@ export default function New() {
             <SidebarProvider defaultOpen={leftOpen} open={leftOpen} onOpenChange={setLeftOpen}>
               <LeftSidebar />
               <div className="flex-1">
-                <SidebarProvider defaultOpen={rightOpen} open={rightOpen} onOpenChange={setRightOpen}>
+                <SidebarProvider
+                  defaultOpen={rightOpen}
+                  open={rightOpen}
+                  onOpenChange={setRightOpen}
+                >
                   <div className="flex w-full">
                     <MainView
                       onLeftToggle={() => setLeftOpen(!leftOpen)}

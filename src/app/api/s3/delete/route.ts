@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       new DeleteObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME!,
         Key: s3Key,
-      })
+      }),
     );
 
     return NextResponse.json({ success: true });
@@ -28,4 +28,4 @@ export async function POST(request: Request) {
     console.error("Error deleting file:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
-} 
+}

@@ -54,80 +54,83 @@ export default function Composer() {
     setHasChanges(true);
   };
 
-  const handleMediaUpload = useCallback(async (boxId: string, files: FileList) => {
-    setUploadingBoxId(boxId);
-    
-    const validFiles = Array.from(files).filter((file) => {
-      if (file.type.startsWith("image/") && file.size > 5 * 1024 * 1024) {
-        toast.error(`Image ${file.name} exceeds 5MB limit`);
-        return false;
-      }
-      if (file.type.startsWith("video/") && file.size > 512 * 1024 * 1024) {
-        toast.error(`Video ${file.name} exceeds 512MB limit`);
-        return false;
-      }
-      return true;
-    });
+  const handleMediaUpload = useCallback(
+    async (boxId: string, files: FileList) => {
+      setUploadingBoxId(boxId);
 
-    try {
-      const uploadPromises: Promise<MediaItem>[] = validFiles.map(async (file) => {
-        // Get presigned URL
-        const res = await fetch("/api/s3/upload", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            draftId: activeDraft?.id,
-            boxId,
-            filename: file.name,
-            contentType: file.type,
-          }),
-        });
-
-        if (!res.ok) throw new Error("Failed to get upload URL");
-        const { presignedUrl, publicUrl, s3Key } = await res.json();
-
-        // Upload to S3 using presigned URL
-        await fetch(presignedUrl, {
-          method: "PUT",
-          body: file,
-          headers: {
-            "Content-Type": file.type,
-          },
-          mode: "cors",
-        });
-
-        return {
-          id: crypto.randomUUID(),
-          url: `/api/s3/media?key=${s3Key}`,
-          s3Key,
-          type: (file.type.startsWith("image/") ? "image" : "video") as "image" | "video",
-          file,
-        };
+      const validFiles = Array.from(files).filter((file) => {
+        if (file.type.startsWith("image/") && file.size > 5 * 1024 * 1024) {
+          toast.error(`Image ${file.name} exceeds 5MB limit`);
+          return false;
+        }
+        if (file.type.startsWith("video/") && file.size > 512 * 1024 * 1024) {
+          toast.error(`Video ${file.name} exceeds 512MB limit`);
+          return false;
+        }
+        return true;
       });
 
-      const newMedia = await Promise.all(uploadPromises);
+      try {
+        const uploadPromises: Promise<MediaItem>[] = validFiles.map(async (file) => {
+          // Get presigned URL
+          const res = await fetch("/api/s3/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              draftId: activeDraft?.id,
+              boxId,
+              filename: file.name,
+              contentType: file.type,
+            }),
+          });
 
-      console.log(newMedia);
+          if (!res.ok) throw new Error("Failed to get upload URL");
+          const { presignedUrl, publicUrl, s3Key } = await res.json();
 
-      setLocalContent((prev) =>
-        prev.map((box) => {
-          if (box.id === boxId) {
-            return {
-              ...box,
-              media: [...(box.media || []), ...newMedia].slice(0, 4),
-            };
-          }
-          return box;
-        }),
-      );
-      setHasChanges(true);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to upload media");
-    } finally {
-      setUploadingBoxId(null);
-    }
-  }, [activeDraft?.id]);
+          // Upload to S3 using presigned URL
+          await fetch(presignedUrl, {
+            method: "PUT",
+            body: file,
+            headers: {
+              "Content-Type": file.type,
+            },
+            mode: "cors",
+          });
+
+          return {
+            id: crypto.randomUUID(),
+            url: `/api/s3/media?key=${s3Key}`,
+            s3Key,
+            type: (file.type.startsWith("image/") ? "image" : "video") as "image" | "video",
+            file,
+          };
+        });
+
+        const newMedia = await Promise.all(uploadPromises);
+
+        console.log(newMedia);
+
+        setLocalContent((prev) =>
+          prev.map((box) => {
+            if (box.id === boxId) {
+              return {
+                ...box,
+                media: [...(box.media || []), ...newMedia].slice(0, 4),
+              };
+            }
+            return box;
+          }),
+        );
+        setHasChanges(true);
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to upload media");
+      } finally {
+        setUploadingBoxId(null);
+      }
+    },
+    [activeDraft?.id],
+  );
 
   const addNewBox = (afterId: string) => {
     const newId = Date.now().toString();
@@ -276,7 +279,7 @@ export default function Composer() {
     return "text-primary";
   };
 
-  const cannotEdit = activeDraft?.status !== 'draft';
+  const cannotEdit = activeDraft?.status !== "draft";
 
   const handleDeleteMedia = useCallback(async (boxId: string, mediaItem: MediaItem) => {
     try {
@@ -291,9 +294,7 @@ export default function Composer() {
       // Update local state
       setLocalContent((prev) =>
         prev.map((b) =>
-          b.id === boxId
-            ? { ...b, media: b.media?.filter((m) => m.id !== mediaItem.id) }
-            : b,
+          b.id === boxId ? { ...b, media: b.media?.filter((m) => m.id !== mediaItem.id) } : b,
         ),
       );
       setHasChanges(true);
@@ -346,12 +347,14 @@ export default function Composer() {
                     variant="ghost"
                     size={deleteConfirm === box.id ? "default" : "icon"}
                     className={`rounded-full ${
-                    deleteConfirm === box.id ? "text-destructive hover:text-destructive" : ""
-                  }`}
-                  onClick={() => handleDelete(box.id)}
-                >
-                  {deleteConfirm !== box.id && <X className="h-4 w-4" />}
-                  {deleteConfirm === box.id && <span className="text-xs font-medium">Confirm</span>}
+                      deleteConfirm === box.id ? "text-destructive hover:text-destructive" : ""
+                    }`}
+                    onClick={() => handleDelete(box.id)}
+                  >
+                    {deleteConfirm !== box.id && <X className="h-4 w-4" />}
+                    {deleteConfirm === box.id && (
+                      <span className="text-xs font-medium">Confirm</span>
+                    )}
                   </Button>
                 )}
               </div>

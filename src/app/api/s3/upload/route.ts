@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { s3Client } from "@/lib/aws";
 
-
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,12 +13,9 @@ export async function POST(req: Request) {
     }
 
     const { draftId, boxId, filename, contentType } = await req.json();
-    
+
     if (!filename || !contentType) {
-      return NextResponse.json(
-        { error: "Missing filename or contentType" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing filename or contentType" }, { status: 400 });
     }
 
     const key = `${session.user.id}/${draftId}/${boxId}-${filename}`;
@@ -34,9 +30,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ presignedUrl, s3Key: key });
   } catch (error) {
     console.error("Error generating presigned URL:", error);
-    return NextResponse.json(
-      { error: "Failed to generate upload URL" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to generate upload URL" }, { status: 500 });
   }
-} 
+}

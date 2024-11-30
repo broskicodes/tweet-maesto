@@ -23,7 +23,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col min-h-screen w-full bg-background relative">
       <main className="flex-1 flex flex-col h-screen w-full bg-background">
-        <BannerCTA /> 
+        <BannerCTA />
         <Header />
         {!session && (
           <div className="flex justify-center items-center h-full flex-1">

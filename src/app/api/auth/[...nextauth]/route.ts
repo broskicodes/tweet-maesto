@@ -86,7 +86,7 @@ const handler = NextAuth({
     async signIn({ user, account, profile }) {
       console.log("signIn", user, account, profile);
 
-      const profileData = (profile as any);
+      const profileData = profile as any;
 
       if (user && user.id && profileData) {
         try {
@@ -115,7 +115,10 @@ const handler = NextAuth({
             .returning({ id: twitterHandles.id });
 
           const twitterHandleId = upsertedHandle.id;
-          console.log(`Twitter handle ${profileData.screen_name} upserted with ID:`, twitterHandleId);
+          console.log(
+            `Twitter handle ${profileData.screen_name} upserted with ID:`,
+            twitterHandleId,
+          );
 
           // Upsert the user
           const [{ id: upsertedUserId, created_at: createdAt }] = await db

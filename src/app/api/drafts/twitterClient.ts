@@ -7,7 +7,7 @@ export async function createTwitterClient(userId: string) {
   const user = await db.query.users.findFirst({
     where: eq(users.id, userId),
   });
-  
+
   if (!user?.oauth_token) {
     throw new Error("No Twitter access token found");
   }

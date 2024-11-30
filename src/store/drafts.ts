@@ -114,7 +114,7 @@ export const useDraftsStore = create<DraftsState>((set, get) => ({
       });
       if (res.ok) {
         const draft = await res.json();
-        console.log(draft)
+        console.log(draft);
         setDrafts([draft, ...drafts]);
         setActiveDraft(draft);
       }

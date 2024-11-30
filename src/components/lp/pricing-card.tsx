@@ -49,7 +49,8 @@ export function PricingCard({ className }: { className?: string }) {
         remainingPurchases,
         priceId: monthlyPriceId!,
         features: [
-          "Access to your analytics dashboard",
+          "Draft, schedule, and post tweets",
+          "Access to analytics dashboard",
           "Discover and analyze viral tweets",
           "Cancel anytime",
         ],
@@ -65,6 +66,7 @@ export function PricingCard({ className }: { className?: string }) {
         remainingPurchases,
         priceId: lifetimePriceId!,
         features: [
+          "Draft, schedule, and post tweets",
           "Access to your analytics dashboard",
           "Discover and analyze viral tweets",
           "Immediate access to new features",
@@ -196,13 +198,13 @@ export function PricingCard({ className }: { className?: string }) {
                 <Progress value={plan.progressValue} className="h-3 w-full" />
                 <div className="flex justify-center text-xs text-muted-foreground">
                   <span>
-                    Price increases to ${plan.nextPrice} after {plan.remainingPurchases} more
+                    Price doubles after {plan.remainingPurchases} more
                     purchases
                   </span>
                 </div>
               </div>
             )}
-            <ul className="space-y-3 text-sm h-28">
+            <ul className="space-y-3 text-sm h-32">
               {plan.features.map((feature, index) => (
                 <li key={index} className="flex items-center">
                   <Check className="mr-2 h-5 w-5 text-primary" />

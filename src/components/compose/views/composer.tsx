@@ -20,8 +20,16 @@ const MAX_CHARS = 280;
 
 export default function Composer() {
   const { data: session } = useSession();
-  const { activeDraft, isLoading, isFetched, loadDrafts, updateDraft, setActiveDraft } =
-    useDraftsStore();
+  const {
+    activeDraft,
+    isLoading,
+    isFetched,
+    drafts,
+    loadDrafts,
+    updateDraft,
+    setActiveDraft,
+    setDrafts,
+  } = useDraftsStore();
   const [localContent, setLocalContent] = useState<TweetBox[]>([{ id: "1", content: "" }]);
   const [hasChanges, setHasChanges] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -211,6 +219,10 @@ export default function Composer() {
 
       if (!response.ok) throw new Error("Failed to post tweets");
       setActiveDraft({ ...activeDraft, status: "posted" });
+      setDrafts([
+        ...drafts.filter((t) => t.id !== activeDraft.id),
+        { ...activeDraft, status: "posted" },
+      ]);
       toast.success("Posted successfully!");
     } catch (error) {
       toast.error("Failed to post tweets");
@@ -260,6 +272,10 @@ export default function Composer() {
 
       if (!response.ok) throw new Error("Failed to schedule tweets");
       setActiveDraft({ ...activeDraft, status: "scheduled" });
+      setDrafts([
+        ...drafts.filter((t) => t.id !== activeDraft.id),
+        { ...activeDraft, status: "scheduled" },
+      ]);
       toast.success(
         `Scheduled for ${formatTz(utcDate, "PPP 'at' p", { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone })}`,
       );
@@ -547,8 +563,14 @@ export default function Composer() {
               onClick={handlePost}
               disabled={isPosting || isScheduling || cannotEdit}
             >
-              <Send className="h-4 w-4 text-primary-foreground" />
-              <span className="text-sm text-primary-foreground font-medium">Post</span>
+              {isPosting ? (
+                <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Send className="h-4 w-4 text-primary-foreground" />
+              )}
+              <span className="text-sm text-primary-foreground font-medium">
+                {isPosting ? "Posting..." : "Post"}
+              </span>
             </DockButton>
           </Dock>
         </div>

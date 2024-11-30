@@ -71,7 +71,7 @@ export const useDraftsStore = create<DraftsState>((set, get) => ({
           });
           if (initialDraft.ok) {
             const newDraft = await initialDraft.json();
-            setDrafts([newDraft]);
+            setDrafts([newDraft, ...drafts]);
             setActiveDraft(newDraft);
           }
         } else {

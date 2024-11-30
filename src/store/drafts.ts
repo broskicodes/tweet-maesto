@@ -3,6 +3,7 @@ import { create } from "zustand";
 export interface MediaItem {
   id: string;
   url: string; // Local preview URL
+  s3Key: string; // S3 key
   type: "image" | "video";
   twitterMediaId?: string; // Set when uploaded to Twitter
   file: File; // Original file for upload
@@ -58,13 +59,14 @@ export const useDraftsStore = create<DraftsState>((set, get) => ({
         const data = await res.json();
         setDrafts(data);
 
-        if (data.length === 0) {
+        const drafts = data.filter((d: Draft) => d.status === "draft");
+        if (drafts.length === 0) {
           const initialDraft = await fetch("/api/drafts", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               user_id: userId,
-              tweet_boxes: [{ id: "1", content: "" }],
+              tweet_boxes: [{ id: Date.now().toString(), content: "" }],
             }),
           });
           if (initialDraft.ok) {
@@ -73,7 +75,7 @@ export const useDraftsStore = create<DraftsState>((set, get) => ({
             setActiveDraft(newDraft);
           }
         } else {
-          setActiveDraft(data[0]);
+          setActiveDraft(drafts[0]);
         }
       }
     } catch (error) {
@@ -112,6 +114,7 @@ export const useDraftsStore = create<DraftsState>((set, get) => ({
       });
       if (res.ok) {
         const draft = await res.json();
+        console.log(draft)
         setDrafts([draft, ...drafts]);
         setActiveDraft(draft);
       }

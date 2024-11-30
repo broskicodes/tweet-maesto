@@ -30,6 +30,7 @@ export default function Composer() {
   const [isScheduling, setIsScheduling] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [scheduleTime, setScheduleTime] = useState("12:00");
+  const [uploadingBoxId, setUploadingBoxId] = useState<string | null>(null);
 
   // Only sync from activeDraft on initial load or when switching drafts
   useEffect(() => {
@@ -54,8 +55,8 @@ export default function Composer() {
   };
 
   const handleMediaUpload = useCallback(async (boxId: string, files: FileList) => {
-    // TODO: Upload media to s3
-
+    setUploadingBoxId(boxId);
+    
     const validFiles = Array.from(files).filter((file) => {
       if (file.type.startsWith("image/") && file.size > 5 * 1024 * 1024) {
         toast.error(`Image ${file.name} exceeds 5MB limit`);
@@ -68,26 +69,65 @@ export default function Composer() {
       return true;
     });
 
-    const newMedia: MediaItem[] = validFiles.map((file) => ({
-      id: crypto.randomUUID(),
-      url: URL.createObjectURL(file),
-      type: file.type.startsWith("image/") ? "image" : "video",
-      file,
-    }));
+    try {
+      const uploadPromises: Promise<MediaItem>[] = validFiles.map(async (file) => {
+        // Get presigned URL
+        const res = await fetch("/api/s3/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            draftId: activeDraft?.id,
+            boxId,
+            filename: file.name,
+            contentType: file.type,
+          }),
+        });
 
-    setLocalContent((prev) =>
-      prev.map((box) => {
-        if (box.id === boxId) {
-          return {
-            ...box,
-            media: [...(box.media || []), ...newMedia].slice(0, 4), // Twitter max 4 media items
-          };
-        }
-        return box;
-      }),
-    );
-    setHasChanges(true);
-  }, []);
+        if (!res.ok) throw new Error("Failed to get upload URL");
+        const { presignedUrl, publicUrl, s3Key } = await res.json();
+
+        // Upload to S3 using presigned URL
+        await fetch(presignedUrl, {
+          method: "PUT",
+          body: file,
+          headers: {
+            "Content-Type": file.type,
+          },
+          mode: "cors",
+        });
+
+        return {
+          id: crypto.randomUUID(),
+          url: `/api/s3/media?key=${s3Key}`,
+          s3Key,
+          type: (file.type.startsWith("image/") ? "image" : "video") as "image" | "video",
+          file,
+        };
+      });
+
+      const newMedia = await Promise.all(uploadPromises);
+
+      console.log(newMedia);
+
+      setLocalContent((prev) =>
+        prev.map((box) => {
+          if (box.id === boxId) {
+            return {
+              ...box,
+              media: [...(box.media || []), ...newMedia].slice(0, 4),
+            };
+          }
+          return box;
+        }),
+      );
+      setHasChanges(true);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to upload media");
+    } finally {
+      setUploadingBoxId(null);
+    }
+  }, [activeDraft?.id, session?.user?.id]);
 
   const addNewBox = (afterId: string) => {
     const newId = Date.now().toString();
@@ -236,6 +276,33 @@ export default function Composer() {
     return "text-primary";
   };
 
+  const cannotEdit = activeDraft?.status !== 'draft';
+
+  const handleDeleteMedia = useCallback(async (boxId: string, mediaItem: MediaItem) => {
+    try {
+      const res = await fetch("/api/s3/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ s3Key: mediaItem.s3Key }),
+      });
+
+      if (!res.ok) throw new Error("Failed to delete media");
+
+      // Update local state
+      setLocalContent((prev) =>
+        prev.map((b) =>
+          b.id === boxId
+            ? { ...b, media: b.media?.filter((m) => m.id !== mediaItem.id) }
+            : b,
+        ),
+      );
+      setHasChanges(true);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete media");
+    }
+  }, []);
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center gap-4 w-full py-4 px-4">
@@ -274,23 +341,26 @@ export default function Composer() {
                   )}
                   <span className="text-base text-muted-foreground">@{session?.user?.handle}</span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size={deleteConfirm === box.id ? "default" : "icon"}
-                  className={`rounded-full ${
+                {!cannotEdit && (
+                  <Button
+                    variant="ghost"
+                    size={deleteConfirm === box.id ? "default" : "icon"}
+                    className={`rounded-full ${
                     deleteConfirm === box.id ? "text-destructive hover:text-destructive" : ""
                   }`}
                   onClick={() => handleDelete(box.id)}
                 >
                   {deleteConfirm !== box.id && <X className="h-4 w-4" />}
                   {deleteConfirm === box.id && <span className="text-xs font-medium">Confirm</span>}
-                </Button>
+                  </Button>
+                )}
               </div>
               <textarea
                 className="w-full resize-none bg-transparent border-none focus:outline-none focus:ring-0 p-0"
                 placeholder="Start typing..."
                 value={box.content}
                 onChange={(e) => handleContentChange(box.id, e.target.value)}
+                disabled={cannotEdit}
                 style={{ height: "auto" }}
                 onInput={(e) => {
                   const target = e.target as HTMLTextAreaElement;
@@ -324,25 +394,24 @@ export default function Composer() {
                           controls
                         />
                       )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/50 hover:bg-black/70"
-                        onClick={() => {
-                          setLocalContent((prev) =>
-                            prev.map((b) =>
-                              b.id === box.id
-                                ? { ...b, media: b.media?.filter((m) => m.id !== item.id) }
-                                : b,
-                            ),
-                          );
-                          setHasChanges(true);
-                        }}
-                      >
-                        <X className="h-3 w-3 text-white" />
-                      </Button>
+                      {!cannotEdit && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/50 hover:bg-black/70"
+                          onClick={() => handleDeleteMedia(box.id, item)}
+                        >
+                          <X className="h-3 w-3 text-white" />
+                        </Button>
+                      )}
                     </div>
                   ))}
+                </div>
+              )}
+              {uploadingBoxId === box.id && (
+                <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                  <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <span>Uploading media...</span>
                 </div>
               )}
               <div className="flex items-center justify-end gap-1 mt-4">
@@ -380,6 +449,7 @@ export default function Composer() {
                   size="icon"
                   className="h-6 w-6"
                   onClick={() => addNewBox(box.id)}
+                  disabled={cannotEdit}
                 >
                   <ListPlus className="h-4 w-4" />
                 </Button>
@@ -388,6 +458,7 @@ export default function Composer() {
                   size="icon"
                   className="h-6 w-6"
                   onClick={() => document.getElementById(`media-upload-${box.id}`)?.click()}
+                  disabled={cannotEdit}
                 >
                   <ImagePlus className="h-4 w-4" />
                 </Button>
@@ -471,7 +542,7 @@ export default function Composer() {
               variant="default"
               className="bg-primary hover:bg-primary/90 flex gap-2"
               onClick={handlePost}
-              disabled={isPosting || isScheduling}
+              disabled={isPosting || isScheduling || cannotEdit}
             >
               <Send className="h-4 w-4 text-primary-foreground" />
               <span className="text-sm text-primary-foreground font-medium">Post</span>

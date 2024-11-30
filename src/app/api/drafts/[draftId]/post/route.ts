@@ -8,6 +8,8 @@ import { createTwitterClient } from "../../twitterClient";
 import { TweetBox } from "@/store/drafts";
 import client, { EUploadMimeType, TwitterApi } from "twitter-api-v2";
 import { join } from "path";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { s3Client } from "@/lib/aws";
 
 type MediaIds =
   | [string]
@@ -44,15 +46,22 @@ export async function POST(req: Request, { params }: { params: { draftId: string
         // Upload each media item and get media IDs
         const mediaIds = await Promise.all(
           tweetBox.media.slice(0, 4).map(async (mediaItem) => {
-            const formData = await req.formData();
-            const file = formData.get(`file-${mediaItem.id}`) as File;
-            if (!file) throw new Error(`Media file ${mediaItem.id} not found`);
+            const command = new GetObjectCommand({
+              Bucket: process.env.AWS_BUCKET_NAME!,
+              Key: mediaItem.s3Key,
+            });
 
-            const buffer = await file.arrayBuffer();
+            const file = await s3Client.send(command);
+
+            const buffer = await file.Body?.transformToByteArray();
+
+            if (!buffer) {
+              throw new Error("No buffer");
+            }
 
             try {
               const mediaId = await twitterClient.v1.uploadMedia(Buffer.from(buffer), {
-                mimeType: file.type,
+                mimeType: file.ContentType,
                 target: "tweet",
                 shared: false,
               });
@@ -62,8 +71,8 @@ export async function POST(req: Request, { params }: { params: { draftId: string
               // Log the detailed error
               console.error("Twitter media upload failed:", {
                 error,
-                fileType: file.type,
-                fileSize: file.size,
+                fileType: file.ContentType,
+                fileSize: file.ContentLength,
               });
               throw error;
             }

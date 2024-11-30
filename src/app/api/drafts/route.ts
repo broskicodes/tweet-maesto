@@ -1,6 +1,6 @@
 import { db } from "@/lib/drizzle";
 import { tweetDrafts } from "@/lib/db-schema";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -15,7 +15,8 @@ export async function GET() {
   const drafts = await db
     .select()
     .from(tweetDrafts)
-    .where(and(eq(tweetDrafts.user_id, session.user.id), isNull(tweetDrafts.deleted_at)));
+    .where(and(eq(tweetDrafts.user_id, session.user.id), isNull(tweetDrafts.deleted_at)))
+    .orderBy(desc(tweetDrafts.created_at));
 
   return NextResponse.json(drafts);
 }

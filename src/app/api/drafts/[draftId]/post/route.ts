@@ -86,6 +86,12 @@ export async function POST(req: Request, { params }: { params: { draftId: string
       }),
     );
 
+    if (!session.user.subscribed) {
+      processedTweets.push({
+        text: `This tweet was posted using Tweet Maestro: https://tweetmaestro.com`,
+      });
+    }
+
     // 3. Post the thread with media
     await twitterClient.v2.tweetThread(processedTweets);
 

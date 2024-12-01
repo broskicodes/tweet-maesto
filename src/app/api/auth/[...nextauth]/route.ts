@@ -1,5 +1,6 @@
 import { users, twitterHandles, subscriptions } from "@/lib/db-schema";
 import { db } from "@/lib/drizzle";
+import { resend } from "@/lib/resend";
 import { TwitterScrapeType } from "@/lib/types";
 import { and, eq } from "drizzle-orm";
 import NextAuth from "next-auth";
@@ -178,6 +179,16 @@ const handler = NextAuth({
             // console.log("Job ID:", jobId);
           } else {
             console.log("Existing user updated:", upsertedUserId);
+          }
+
+          if (user.email) {
+            await resend.contacts.create({
+              email: user.email,
+              firstName: user.name?.split(" ")[0] || "",
+              lastName: user.name?.split(" ").slice(1).join(" ") || "",
+              unsubscribed: false,
+              audienceId: process.env.RESEND_AUDIENCE_ID!,
+            });
           }
 
           return true; // Sign in successful

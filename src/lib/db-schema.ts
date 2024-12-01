@@ -106,6 +106,7 @@ export const users = pgTable("users", {
   onboarded: boolean("onboarded").notNull().default(false),
   oauth_token: text("oauth_token"),
   oauth_token_secret: text("oauth_token_secret"),
+  resend_contact_id: uuid("resend_contact_id"),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
   deleted_at: timestamp("deleted_at"),

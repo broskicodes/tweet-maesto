@@ -3,6 +3,7 @@ import { db } from "@/lib/drizzle";
 import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import { PostHog } from "posthog-node";
+import { resend } from "@/lib/resend";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-10-28.acacia",
@@ -75,15 +76,31 @@ export async function POST(request: Request) {
         });
 
         if (user_email) {
-          await db
+          const [{ name, resend_contact_id }] = await db
             .update(users)
             .set({
               email: user_email,
             })
-            .where(eq(users.id, user_id));
-        }
+            .where(eq(users.id, user_id))
+            .returning({ name: users.name, resend_contact_id: users.resend_contact_id });
 
-        // console.log(sessionWithLineItems.customer_details?.email, sessionWithLineItems.customer_email);
+          if (!resend_contact_id) {
+            const { data } = await resend.contacts.create({
+              email: user_email,
+              firstName: name?.split(" ")[0] || "",
+              lastName: name?.split(" ").slice(1).join(" ") || "",
+              unsubscribed: false,
+              audienceId: process.env.RESEND_AUDIENCE_ID!,
+            });
+
+            await db
+              .update(users)
+              .set({
+                resend_contact_id: data?.id,
+              })
+              .where(eq(users.id, user_id));
+          }
+        }
 
         posthog.identify({
           distinctId: user_id,

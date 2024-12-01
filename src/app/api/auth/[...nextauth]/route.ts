@@ -182,13 +182,20 @@ const handler = NextAuth({
           }
 
           if (user.email) {
-            await resend.contacts.create({
+            const { data } = await resend.contacts.create({
               email: user.email,
               firstName: user.name?.split(" ")[0] || "",
               lastName: user.name?.split(" ").slice(1).join(" ") || "",
               unsubscribed: false,
               audienceId: process.env.RESEND_AUDIENCE_ID!,
             });
+
+            await db
+              .update(users)
+              .set({
+                resend_contact_id: data?.id,
+              })
+              .where(eq(users.id, upsertedUserId));
           }
 
           return true; // Sign in successful

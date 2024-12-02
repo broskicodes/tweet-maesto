@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { addMinutes, setHours, setMinutes } from "date-fns";
 import { toZonedTime, format as formatTz, fromZonedTime } from "date-fns-tz";
+import posthog from "posthog-js";
 
 const MAX_CHARS = 280;
 
@@ -238,6 +239,7 @@ export default function Composer() {
         ...drafts.filter((t) => t.id !== activeDraft.id),
         { ...activeDraft, status: "posted" },
       ]);
+      posthog.capture("draft_posted", { draft_id: activeDraft.id });
       toast.success("Posted successfully!");
     } catch (error) {
       toast.error("Failed to post tweets");
@@ -291,6 +293,7 @@ export default function Composer() {
         ...drafts.filter((t) => t.id !== activeDraft.id),
         { ...activeDraft, status: "scheduled" },
       ]);
+      posthog.capture("draft_scheduled", { draft_id: activeDraft.id });
       toast.success(
         `Scheduled for ${formatTz(utcDate, "PPP 'at' p", { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone })}`,
       );

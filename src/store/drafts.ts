@@ -1,3 +1,4 @@
+import posthog from "posthog-js";
 import { create } from "zustand";
 
 export interface MediaItem {
@@ -117,6 +118,7 @@ export const useDraftsStore = create<DraftsState>((set, get) => ({
         console.log(draft);
         setDrafts([draft, ...drafts]);
         setActiveDraft(draft);
+        posthog.capture("draft_created", { draft_id: draft.id });
       }
     } catch (error) {
       console.error("Failed to create draft:", error);

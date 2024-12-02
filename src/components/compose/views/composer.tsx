@@ -194,15 +194,15 @@ export default function Composer() {
     return () => clearInterval(timer);
   }, [hasChanges, activeDraft, localContent, session?.user?.id, updateDraft]);
 
-  // Save on unmount if there are pending changes
-  useEffect(() => {
-    return () => {
-      if (hasChanges && activeDraft) {
-        updateDraft(activeDraft.id, localContent);
-        setHasChanges(false);
-      }
-    };
-  }, [hasChanges, activeDraft, localContent, updateDraft]);
+  // // Save on unmount if there are pending changes
+  // useEffect(() => {
+  //   return () => {
+  //     if (hasChanges && activeDraft) {
+  //       updateDraft(activeDraft.id, localContent);
+  //       setHasChanges(false);
+  //     }
+  //   };
+  // }, [hasChanges, activeDraft, localContent, updateDraft]);
 
   const handlePost = async () => {
     if (!activeDraft || !session?.user?.id) return;

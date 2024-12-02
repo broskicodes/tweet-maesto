@@ -187,6 +187,7 @@ export default function Composer() {
     return () => {
       if (hasChanges && activeDraft) {
         updateDraft(activeDraft.id, localContent);
+        setHasChanges(false);
       }
     };
   }, [hasChanges, activeDraft, localContent, updateDraft]);
@@ -382,6 +383,7 @@ export default function Composer() {
                 onChange={(e) => handleContentChange(box.id, e.target.value)}
                 disabled={cannotEdit}
                 style={{ height: "auto" }}
+                maxLength={session?.user?.verified ? undefined : MAX_CHARS}
                 onInput={(e) => {
                   const target = e.target as HTMLTextAreaElement;
                   target.style.height = "auto";

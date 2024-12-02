@@ -31,6 +31,7 @@ export default function Composer() {
     setDrafts,
   } = useDraftsStore();
   const [localContent, setLocalContent] = useState<TweetBox[]>([{ id: "1", content: "" }]);
+  const [localDraft, setLocalDraft] = useState<Draft | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [scheduledDate, setScheduledDate] = useState<Date>();
@@ -49,13 +50,13 @@ export default function Composer() {
     }
   }, [session?.user?.id, isFetched, loadDrafts]);
 
-  // Only update local content when activeDraft changes (switching drafts)
+  // Only update content when switching to a different draft
   useEffect(() => {
-    if (activeDraft && !hasChanges) {
-      // Don't override local changes
+    if (activeDraft && (!localDraft || activeDraft.id !== localDraft.id)) {
+      setLocalDraft(activeDraft);
       setLocalContent(activeDraft.tweet_boxes);
     }
-  }, [activeDraft, hasChanges]); // Only depend on draft ID to prevent unnecessary updates
+  }, [activeDraft, localDraft]);
 
   useEffect(() => {
     // Adjust heights after content loads or changes

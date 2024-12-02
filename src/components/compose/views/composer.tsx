@@ -40,6 +40,7 @@ export default function Composer() {
   const [scheduleTime, setScheduleTime] = useState("12:00");
   const [uploadingBoxId, setUploadingBoxId] = useState<string | null>(null);
   const [showPostConfirm, setShowPostConfirm] = useState(false);
+  const textareaRefs = useRef<{ [key: string]: HTMLTextAreaElement }>({});
 
   // Only sync from activeDraft on initial load or when switching drafts
   useEffect(() => {
@@ -55,6 +56,17 @@ export default function Composer() {
       setLocalContent(activeDraft.tweet_boxes);
     }
   }, [activeDraft, hasChanges]); // Only depend on draft ID to prevent unnecessary updates
+
+  useEffect(() => {
+    // Adjust heights after content loads or changes
+    localContent.forEach(box => {
+      const textarea = textareaRefs.current[box.id];
+      if (textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+      }
+    });
+  }, [localContent]);
 
   const handleContentChange = (id: string, newContent: string) => {
     setLocalContent((prev) =>
@@ -377,7 +389,10 @@ export default function Composer() {
                 )}
               </div>
               <textarea
-                className="w-full resize-none bg-transparent border-none focus:outline-none focus:ring-0 p-0"
+                ref={el => {
+                  if (el) textareaRefs.current[box.id] = el;
+                }}
+                className="w-full bg-transparent border-none focus:outline-none focus:ring-0 p-0"
                 placeholder="Start typing..."
                 value={box.content}
                 onChange={(e) => handleContentChange(box.id, e.target.value)}

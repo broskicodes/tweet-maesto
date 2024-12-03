@@ -11,6 +11,7 @@ declare module "next-auth" {
       verified?: boolean | null;
       subscribed?: boolean | null;
       onboarded?: boolean | null;
+      created_at?: string | null;
     };
   }
 }

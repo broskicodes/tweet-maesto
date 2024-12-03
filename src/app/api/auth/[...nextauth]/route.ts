@@ -46,6 +46,7 @@ const handler = NextAuth({
             id: users.id,
             twitter_handle_id: users.twitter_handle_id,
             onboarded: users.onboarded,
+            created_at: users.created_at,
           })
           .from(users)
           .where(eq(users.twitter_handle_id, BigInt(userId)))
@@ -73,6 +74,8 @@ const handler = NextAuth({
           session.user.subscribed = userSubscription?.active || false;
           // @ts-ignore
           session.user.onboarded = dbUser.onboarded;
+          // @ts-ignore
+          session.user.created_at = dbUser.created_at;
         }
       }
       return session;
@@ -158,28 +161,6 @@ const handler = NextAuth({
           });
 
           posthog.shutdown();
-          // Check if this is a new user
-          if (createdAt && new Date().getTime() - createdAt.getTime() <= 30000) {
-            console.log("Initializing Twitter handle:", profileData.screen_name);
-            const jobResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_SCRAPER_URL}/twitter/scrape`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  scrapeType: TwitterScrapeType.Initialize,
-                  handles: [profileData.screen_name],
-                }),
-              },
-            );
-
-            // const { jobId } = await jobResponse.json();
-            // console.log("Job ID:", jobId);
-          } else {
-            console.log("Existing user updated:", upsertedUserId);
-          }
 
           if (user.email) {
             const { data } = await resend.contacts.create({

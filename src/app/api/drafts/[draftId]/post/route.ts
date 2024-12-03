@@ -6,8 +6,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { createTwitterClient } from "../../twitterClient";
 import { TweetBox } from "@/store/drafts";
-import client, { EUploadMimeType, TwitterApi } from "twitter-api-v2";
-import { join } from "path";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "@/lib/aws";
 

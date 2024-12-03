@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { SimilarAccounts } from "./similar-accounts";
 import { PricingModal } from "@/components/layout/pricing-modal";
 import posthog from "posthog-js";
+import { ClientMessageType, MessageStatus, useWebSocketStore } from "@/store/websocket";
 
 interface DateRange {
   start: Date;
@@ -51,6 +52,8 @@ export function PersonalDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isScraping, setIsScraping] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
+  const { send, trackedMessages } = useWebSocketStore();
+  const [messageId, setMessageId] = useState<string | null>(null);
 
   useEffect(() => {
     if (session?.user?.handle) {
@@ -184,57 +187,16 @@ export function PersonalDashboard() {
 
     try {
       setIsScraping(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SCRAPER_URL}/twitter/scrape`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ scrapeType: type, handles: [selectedHandle.handle] }),
+      const msgId = send({
+        type: ClientMessageType.Scrape,
+        payload: {
+          scrapeType: type,
+          handles: [selectedHandle.handle],
+        }
       });
 
-      if (!response.ok) throw new Error(`Failed to ${type} tweets`);
-
-      const waitTime = type === TwitterScrapeType.Daily ? 30000 : 180000;
-      const message =
-        type === TwitterScrapeType.Daily
-          ? "Scraping tweets, will refresh in 30 seconds..."
-          : "Initializing tweets, this may take a few minutes...";
-
-      toast.success(message);
-
-      setTimeout(async () => {
-        setIsLoading(true);
-
-        if (type === TwitterScrapeType.Initialize) {
-          const response = await fetch("/api/profiles", {
-            method: "POST",
-            body: JSON.stringify({
-              handle: selectedHandle?.handle,
-              all: false,
-            }),
-          });
-
-          if (!response.ok) toast.error("Failed to initialize profile");
-        }
-
-        const tweetsResponse = await fetch(`/api/tweets/${selectedHandle.handle}`);
-        if (!tweetsResponse.ok) {
-          toast.error("Failed to fetch new tweets");
-          setIsLoading(false);
-          setIsScraping(false);
-          return;
-        }
-
-        const data: Tweet[] = await tweetsResponse.json();
-        setTweetData(data);
-        setFilteredTweets(data);
-        setIsLoading(false);
-        setIsScraping(false);
-
-        toast.success(
-          type === TwitterScrapeType.Daily ? "Tweets refreshed!" : "Tweets initialized!",
-        );
-      }, waitTime);
+      setMessageId(msgId);
+      toast.info("Scraping tweets");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       console.error(`Error ${type} tweets:`, err);
@@ -255,45 +217,84 @@ export function PersonalDashboard() {
 
     try {
       setIsScraping(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SCRAPER_URL}/twitter/scrape`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const msgId = send({
+        type: ClientMessageType.Scrape,
+        payload: {
           scrapeType: TwitterScrapeType.Micro,
           handles: [searchQuery],
-        }),
+        }
       });
 
-      if (!response.ok) throw new Error("Failed to initialize tweets");
-
-      if (!response.ok) toast.error("Failed to initialize profile");
-      toast.success("Initializing tweets for new handle, this may take a few minutes...");
-
-      // Refresh handles list after 5 minutes
-      setTimeout(async () => {
-        const profileResponse = await fetch("/api/profiles", {
-          method: "POST",
-          body: JSON.stringify({
-            handle: selectedHandle?.handle,
-            all: false,
-          }),
-        });
-
-        if (!profileResponse.ok) toast.error("Failed to initialize profile");
-
-        const handlesResponse = await fetch("/api/handles");
-        if (handlesResponse.ok) {
-          const newHandles = await handlesResponse.json();
-          setHandles(newHandles);
-          setIsScraping(false);
-          toast.success("New handle initialized!");
-        }
-      }, 60000);
+      setMessageId(msgId);
+      toast.info("Initializing tweets for new handle, this may take a few minutes...");
     } catch (err) {
       toast.error("Failed to initialize new handle");
       setIsScraping(false);
     }
   };
+
+
+  useEffect(() => {
+    if (messageId && trackedMessages.has(messageId)) {
+        const msg = trackedMessages.get(messageId)!;
+
+        if (msg.status === MessageStatus.Pending) {
+          return;
+        }
+
+        setIsLoading(true);
+        const type = msg.message.payload.scrapeType;
+        const handle = msg.message.payload.handles[0];
+
+        (async () => {
+          if (type === TwitterScrapeType.Initialize) {
+          const response = await fetch("/api/profiles", {
+            method: "POST",
+            body: JSON.stringify({
+              handle,
+              all: false,
+            }),
+          });
+
+          if (!response.ok) toast.error("Failed to initialize profile");
+        }
+
+        if (type === TwitterScrapeType.Micro) {
+          const handlesResponse = await fetch("/api/handles");
+          if (handlesResponse.ok) {
+            const newHandles = await handlesResponse.json();
+            setHandles(newHandles);
+            setIsScraping(false);
+            toast.success("New handle initialized!");
+          }
+        } else {
+          const tweetsResponse = await fetch(`/api/tweets/${handle}`);
+          if (!tweetsResponse.ok) {
+            toast.error("Failed to fetch new tweets");
+            setIsLoading(false);
+            setIsScraping(false);
+            return;
+          }
+
+          const data: Tweet[] = await tweetsResponse.json();
+          setTweetData(data);
+          setFilteredTweets(data);
+        }
+
+        setIsLoading(false);
+        setIsScraping(false);
+
+        toast.success(
+          type === TwitterScrapeType.Daily ? "Tweets refreshed!" : "Tweets initialized!",
+        );
+        
+        setIsScraping(false);
+      })().finally(() => {
+        setMessageId(null);
+      });
+    }
+  }, [trackedMessages, messageId]);
+
 
   const doIt = async () => {
     const response = await fetch("/api/profiles", {

@@ -1,8 +1,22 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function Planner() {
+  const handleSync = async () => {
+    try {
+      await fetch('/api/planner/sync', {
+        method: 'POST',
+      });
+    } catch (error) {
+      console.error('Failed to sync:', error);
+    }
+  };
+  
   return (
     <div className="flex-1 p-6">
+      <div className="mb-6">
+        <Button onClick={handleSync}>Sync Planner</Button>
+      </div>
       <div className="grid grid-cols-2 gap-6">
         <Card className="col-span-2">
           <CardHeader>

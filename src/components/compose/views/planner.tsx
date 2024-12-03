@@ -14,9 +14,9 @@ export default function Planner() {
   
   return (
     <div className="flex-1 p-6">
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <Button onClick={handleSync}>Sync Planner</Button>
-      </div>
+      </div> */}
       <div className="grid grid-cols-2 gap-6">
         <Card className="col-span-2">
           <CardHeader>

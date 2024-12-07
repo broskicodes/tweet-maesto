@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type View = "compose" | "calendar" | "planner";
+export type View = "compose" | "calendar" | "planner" | "stats";
 
 type ViewState = {
   currentView: View;

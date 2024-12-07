@@ -597,7 +597,7 @@ export default function Composer() {
               </div>
             </PopoverContent>
           </Popover>
-          <Dock>
+          <Dock className="mt-60">
             {/* <DockButton
               variant="ghost"
               className="bg-primary/10 hover:bg-primary/20"

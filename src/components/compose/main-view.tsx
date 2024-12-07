@@ -14,6 +14,7 @@ import { useViewStore } from "@/store/views";
 import Composer from "./views/composer";
 import Planner from "./views/planner";
 import Calendar from "./views/calendar";
+import Stats from "./views/stats";
 
 interface MainViewProps {
   onLeftToggle: () => void;
@@ -39,6 +40,7 @@ export const MainView: FC<MainViewProps> = ({ onLeftToggle, onRightToggle }) => 
         {currentView === "compose" && <Composer />}
         {currentView === "calendar" && <Calendar />}
         {currentView === "planner" && <Planner />}
+        {currentView === "stats" && <Stats />}
       </ScrollArea>
 
       <Dialog open={!session} modal>

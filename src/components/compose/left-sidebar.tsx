@@ -20,6 +20,9 @@ import {
   PenSquare,
   Calendar,
   GalleryVerticalEnd,
+  BarChart,
+  BarChart3,
+  BarChart2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -44,21 +47,26 @@ const links = [
 ];
 
 const navItems = [
-  {
-    title: "Planner",
-    view: "planner" as View,
-    icon: <GalleryVerticalEnd className="h-4 w-4" />,
-  },
+  // {
+  //   title: "Planner",
+  //   view: "planner" as View,
+  //   icon: <GalleryVerticalEnd className="h-4 w-4" />,
+  // },
   {
     title: "Compose",
     view: "compose" as View,
     icon: <PenSquare className="h-4 w-4" />,
   },
-  {
-    title: "Calendar",
-    view: "calendar" as View,
-    icon: <Calendar className="h-4 w-4" />,
-  },
+  // {
+  //   title: "Stats",
+  //   view: "stats" as View,
+  //   icon: <BarChart2 className="h-4 w-4" />,
+  // },
+  // {
+  //   title: "Calendar",
+  //   view: "calendar" as View,
+  //   icon: <Calendar className="h-4 w-4" />,
+  // },
 ];
 
 export const LeftSidebar: FC = () => {

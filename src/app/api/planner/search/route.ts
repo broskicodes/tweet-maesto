@@ -6,6 +6,7 @@ import { TwitterApi } from 'twitter-api-v2';
 import { db } from '@/lib/drizzle';
 import { users } from '@/lib/db-schema';
 import { eq } from 'drizzle-orm';
+
 export async function POST() {
   try {
     const session = await getServerSession(authOptions);
@@ -30,8 +31,8 @@ export async function POST() {
     //     accessSecret: process.env.TWITTER_ACCESS_SECRET!
     // });
 
-    // const likers = await twitterClient.v2.tweetLikedBy("1863606568954253319");
-    // console.log(likers);
+    const likers = await twitterClient.v2.tweetLikedBy("1858542909017973016");
+    console.log(likers.data.map(l => l.username));
    
     // const followers = await twitterClient.v2.following(twitterUserId, {
     //   max_results: 100
@@ -48,7 +49,7 @@ export async function POST() {
     // }
     
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ users: likers.data.map(l => l.username) });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Failed to sync' }, { status: 500 });

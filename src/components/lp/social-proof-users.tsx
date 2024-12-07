@@ -61,8 +61,8 @@ export default function SocialProofUsers() {
         </div>
         <span className="mt-1 text-sm font-semibold text-muted-foreground space-x-1">
           <span>Join</span>
-          <span className="text-foreground">50+</span>
-          <span>shippers</span>
+          <span className="text-foreground">70+</span>
+          <span>maestros</span>
         </span>
       </div>
     </div>

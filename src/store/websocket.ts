@@ -2,6 +2,8 @@ import { create } from 'zustand'
 
 export enum ClientMessageType {
   Scrape = "scrape",
+  Followers = "followers",
+  Users = "users",
 }
 
 export enum WebSocketMessageType {
@@ -23,6 +25,7 @@ export interface ClientMessage {
 
 export interface WebSocketMessage {
   type: WebSocketMessageType
+  clientMessageType?: ClientMessageType
   messageId?: string
   payload: any
 }
@@ -58,7 +61,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data) as WebSocketMessage
-      console.log(message)
+      // console.log(message)
 
       if (message.messageId) {
         set(state => {
@@ -81,7 +84,6 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
       switch (message.type) {
         case WebSocketMessageType.Success:
           set({ messages: [...get().messages, message] })
-          console.log(message.payload)
           break
         case WebSocketMessageType.Ready:
           set({ status: "connected" })

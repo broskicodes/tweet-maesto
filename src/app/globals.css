@@ -70,3 +70,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+[draggable] {
+  cursor: move;
+}
+
+.border-primary {
+  border-color: hsl(var(--primary));
+  border-style: dashed;
+}
+
+[contenteditable]:empty {
+  caret-color: auto;
+}
+
+[contenteditable][data-placeholder]:empty:before {
+  content: attr(data-placeholder);
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+}

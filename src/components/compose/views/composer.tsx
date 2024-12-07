@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, DragEvent } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useSession } from "next-auth/react";
@@ -16,9 +16,9 @@ import { Label } from "@/components/ui/label";
 import { addMinutes, setHours, setMinutes } from "date-fns";
 import { toZonedTime, format as formatTz, fromZonedTime } from "date-fns-tz";
 import posthog from "posthog-js";
-
-const MAX_CHARS = 280;
-
+import { MAX_CHARS } from "@/lib/types";
+import TiptapContent, { TiptapContentRef } from "@/components/tiptap/editor";
+import Link from "next/link";
 export default function Composer() {
   const { data: session } = useSession();
   const {
@@ -42,7 +42,10 @@ export default function Composer() {
   const [scheduleTime, setScheduleTime] = useState("12:00");
   const [uploadingBoxId, setUploadingBoxId] = useState<string | null>(null);
   const [showPostConfirm, setShowPostConfirm] = useState(false);
+  const [ogData, setOgData] = useState<{ [key: string]: { image: string, title: string, url: string } }>({});
+
   const textareaRefs = useRef<{ [key: string]: HTMLTextAreaElement }>({});
+  const editorRefs = useRef<{ [key: string]: TiptapContentRef }>({});
 
   // Only sync from activeDraft on initial load or when switching drafts
   useEffect(() => {
@@ -191,7 +194,7 @@ export default function Composer() {
         updateDraft(activeDraft.id, localContent);
         setHasChanges(false);
       }
-    }, 3000);
+    }, 1500);
 
     return () => clearInterval(timer);
   }, [hasChanges, activeDraft, localContent, session?.user?.id, updateDraft]);
@@ -338,6 +341,79 @@ export default function Composer() {
     }
   }, []);
 
+  const handleDragOver = (e: DragEvent) => {
+    e.preventDefault();
+    e.currentTarget.classList.add('border-primary');
+  };
+
+  const handleDragLeave = (e: DragEvent) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove('border-primary');
+  };
+
+  const handleDrop = async (e: DragEvent, boxId: string) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove('border-primary');
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      await handleMediaUpload(boxId, e.dataTransfer.files);
+    }
+  };
+
+  const fetchOgData = async (url: string): Promise<{ image: string | null, title: string | null } | null> => {
+    try {
+      const res = await fetch(`/api/og?url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+      return { 
+        image: data.image || null,
+        title: data.title || null 
+      };
+    } catch (error) {
+      console.error('Failed to fetch OG data:', error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    localContent.forEach(async (box) => {
+      const links = editorRefs.current[box.id]?.getLinkNodes() || [];
+      
+      if (!links.length) {
+        setOgData(prev => {
+          const newOg = { ...prev };
+          delete newOg[box.id];
+          return newOg;
+        });
+        return;
+      }
+
+      for (let i = links.length - 1; i >= 0; i--) {
+        const link = links[i].href;
+        if (!link) continue;
+
+        const data = await fetchOgData(link);
+        if (data?.image) {
+          setOgData(prev => ({ 
+            ...prev, 
+            [box.id]: { 
+              image: data.image!, 
+              title: data.title || new URL(link).hostname,
+              url: link
+            }
+          }));
+          return;
+        }
+      }
+
+      setOgData(prev => {
+        const newOg = { ...prev };
+        delete newOg[box.id];
+        return newOg;
+      });
+    });
+  }, [localContent]);
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center gap-4 w-full py-4 px-4">
@@ -363,7 +439,13 @@ export default function Composer() {
       <div className="flex-1 overflow-y-auto">
         <div className="flex flex-col items-center gap-4 w-full py-4 px-4">
           {localContent.map((box, index) => (
-            <div key={box.id} className="w-full max-w-xl bg-card rounded-lg border shadow-sm p-4">
+            <div
+              key={box.id}
+              className="w-full max-w-xl bg-card rounded-lg border shadow-sm p-4 transition-colors"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, box.id)}
+            >
               <div className="flex items-center mb-2">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={`https://unavatar.io/twitter/${session?.user?.handle}`} />
@@ -392,7 +474,18 @@ export default function Composer() {
                   </Button>
                 )}
               </div>
-              <textarea
+              <TiptapContent
+                ref={el => {
+                  if (el) editorRefs.current[box.id] = el;
+                }}
+                content={box.content}
+                editable={!cannotEdit}
+                // placeholder="Start typing..."
+                maxLength={MAX_CHARS}
+                onUpdate={(content) => handleContentChange(box.id, content)}
+                className="w-full"
+              />
+              {/* <textarea
                 ref={el => {
                   if (el) textareaRefs.current[box.id] = el;
                 }}
@@ -408,7 +501,19 @@ export default function Composer() {
                   target.style.height = "auto";
                   target.style.height = `${target.scrollHeight}px`;
                 }}
-              />
+              /> */}
+              {(!box.media || box.media.length === 0) && ogData[box.id] && (
+                <Link href={ogData[box.id].url} target="_blank" className="mt-2 relative">
+                  <img
+                    src={ogData[box.id].image}
+                    alt=""
+                    className="w-full h-48 object-cover rounded-md"
+                  />
+                  <div className="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded text-xs text-white max-w-[90%] truncate">
+                    {ogData[box.id].title}
+                  </div>
+                </Link>
+              )} 
               {box.media && box.media.length > 0 && (
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {box.media.map((item, i) => (
@@ -509,7 +614,7 @@ export default function Composer() {
         </div>
       </div>
       <>
-        <div className="relative sticky bottom-4 z-10">
+        <div className="relative sticky bottom-4">
           <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
             <PopoverTrigger asChild>
               <button className="absolute bottom-12 left-1/2 w-0 h-0" />
@@ -597,8 +702,10 @@ export default function Composer() {
               </div>
             </PopoverContent>
           </Popover>
-          <Dock className="mt-60">
-            {/* <DockButton
+        </div>
+        <div className="mt-60 sticky bottom-4">
+            <Dock className="z-50">
+              {/* <DockButton
               variant="ghost"
               className="bg-primary/10 hover:bg-primary/20"
               disabled={isScheduling}
@@ -625,7 +732,7 @@ export default function Composer() {
               </span>
             </DockButton>
           </Dock>
-        </div>
+          </div>
       </>
     </div>
   );

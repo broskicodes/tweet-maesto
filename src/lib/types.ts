@@ -143,3 +143,5 @@ export enum ChatPromptType {
   AudienceInitializeChat = "audience_initialize_chat",
   AudienceInitialize = "audience_initialize",
 }
+
+export const MAX_CHARS = 280;

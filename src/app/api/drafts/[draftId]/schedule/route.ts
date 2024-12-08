@@ -28,11 +28,7 @@ export async function POST(req: Request, { params }: { params: { draftId: string
       return new NextResponse("Draft not found", { status: 404 });
     }
 
-    // 2. Schedule with Twitter API
-    const twitterClient = await createTwitterClient(session.user.id);
-    // const scheduledTweet = await twitterClient.v2.sche(draft.tweet_boxes);
-
-    // 3. Update draft status
+    // 2. Update draft status
     const updated = await db
       .update(tweetDrafts)
       .set({

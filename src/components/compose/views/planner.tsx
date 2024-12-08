@@ -30,7 +30,7 @@ export default function Planner() {
       });
       setMessageId(msgId);
     } catch (error) {
-      console.error('Failed to sync:', error);
+      console.error("Failed to sync:", error);
       setIsLoading(false);
     }
   }, [send, setMessageId, session]);
@@ -50,15 +50,15 @@ export default function Planner() {
       const msgId = send({
         type: ClientMessageType.Users,
         payload: {
-          handles:users,
+          handles: users,
         },
       });
       setMessageId(msgId);
     } catch (error) {
-      console.error('Failed to sync:', error);
+      console.error("Failed to sync:", error);
       setIsLoading(false);
     }
-  }, []);
+  }, [send, setMessageId, session]);
 
   const handleScrape = useCallback(async () => {
     if (!session?.user?.id) return;
@@ -69,18 +69,15 @@ export default function Planner() {
         type: ClientMessageType.Scrape,
         payload: {
           scrapeType: TwitterScrapeType.Micro,
-          handles: [
-            "safwaankay",
-            "wuweiweiwu",
-          ],
+          handles: ["safwaankay", "wuweiweiwu"],
         },
       });
       setMessageId(msgId);
     } catch (error) {
-      console.error('Failed to sync:', error);
+      console.error("Failed to sync:", error);
       setIsLoading(false);
     }
-  }, []);
+  }, [send, setMessageId, session]);
 
   useEffect(() => {
     if (messageId && trackedMessages.has(messageId)) {
@@ -104,13 +101,19 @@ export default function Planner() {
       }
     }
   }, [trackedMessages, messageId]);
-  
+
   return (
     <div className="flex-1 p-6">
       <div className="mb-6 flex gap-2">
-        <Button onClick={handleStart} disabled={isLoading}>{isLoading ? "Starting..." : "Get Started"}</Button>
-        <Button onClick={handleSearch} disabled={isLoading}>{isLoading ? "Searching..." : "Search"}</Button>
-        <Button onClick={handleScrape} disabled={isLoading}>{isLoading ? "Scraping..." : "Scrape"}</Button>
+        <Button onClick={handleStart} disabled={isLoading}>
+          {isLoading ? "Starting..." : "Get Started"}
+        </Button>
+        <Button onClick={handleSearch} disabled={isLoading}>
+          {isLoading ? "Searching..." : "Search"}
+        </Button>
+        <Button onClick={handleScrape} disabled={isLoading}>
+          {isLoading ? "Scraping..." : "Scrape"}
+        </Button>
       </div>
       <div className="grid grid-cols-2 gap-6">
         <Card className="col-span-2">

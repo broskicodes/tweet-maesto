@@ -1,7 +1,7 @@
 import { InputRule, markInputRule, markPasteRule, PasteRule } from "@tiptap/core";
 import { Link as TiptapLink } from "@tiptap/extension-link";
 import type { LinkOptions } from "@tiptap/extension-link";
-import { Plugin, PluginKey } from 'prosemirror-state'
+import { Plugin, PluginKey } from "prosemirror-state";
 
 /**
  * The input regex for Markdown links with title support, and multiple quotation marks (required
@@ -9,7 +9,8 @@ import { Plugin, PluginKey } from 'prosemirror-state'
  *
  * @see https://stephenweiss.dev/regex-markdown-link
  */
-const inputRegex = /(?:^|\s)((?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z]{2,})+(?:[-a-zA-Z0-9@:%_\+.~#?&//=]*))$/;
+const inputRegex =
+  /(?:^|\s)((?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z]{2,})+(?:[-a-zA-Z0-9@:%_\+.~#?&//=]*))$/;
 
 /**
  * The paste regex for Markdown links with title support, and multiple quotation marks (required
@@ -17,7 +18,8 @@ const inputRegex = /(?:^|\s)((?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z
  *
  * @see https://stephenweiss.dev/regex-markdown-link
  */
-const pasteRegex = /(?:^|\s)((?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z]{2,})+(?:[-a-zA-Z0-9@:%_\+.~#?&//=]*))/g;
+const pasteRegex =
+  /(?:^|\s)((?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z]{2,})+(?:[-a-zA-Z0-9@:%_\+.~#?&//=]*))/g;
 
 /**
  * Input rule built specifically for the `Link` extension, which ignores the auto-linked URL in
@@ -59,47 +61,51 @@ function linkPasteRule(config: Parameters<typeof markPasteRule>[0]) {
   });
 }
 
-const linkPluginKey = new PluginKey('link-plugin')
+const linkPluginKey = new PluginKey("link-plugin");
 
 function createLinkPlugin(type: any) {
   return new Plugin({
     key: linkPluginKey,
     appendTransaction: (transactions, oldState, newState) => {
-      if (!transactions.some(tr => tr.docChanged)) return null
+      if (!transactions.some((tr) => tr.docChanged)) return null;
 
-      const tr = newState.tr
-      let modified = false
+      const tr = newState.tr;
+      let modified = false;
 
       newState.doc.descendants((node, pos) => {
         if (node.isText) {
-          const text = node.text || ''
-          const parts = text.split(/(\s+)/)
-          let currentPos = pos
+          const text = node.text || "";
+          const parts = text.split(/(\s+)/);
+          let currentPos = pos;
 
-          parts.forEach(part => {
-            const match = part.match(inputRegex)
-            const hasLink = node.marks.some(mark => mark.type === type)
-            
+          parts.forEach((part) => {
+            const match = part.match(inputRegex);
+            const hasLink = node.marks.some((mark) => mark.type === type);
+
             if (match) {
-              const url = match[1]?.trim()
-              tr.removeMark(currentPos, currentPos + part.length, type)
-              tr.addMark(currentPos, currentPos + part.length, type.create({
-                href: url.startsWith('http') ? url : `http://${url}`,
-              }))
-              modified = true
+              const url = match[1]?.trim();
+              tr.removeMark(currentPos, currentPos + part.length, type);
+              tr.addMark(
+                currentPos,
+                currentPos + part.length,
+                type.create({
+                  href: url.startsWith("http") ? url : `http://${url}`,
+                }),
+              );
+              modified = true;
             } else if (hasLink) {
-              tr.removeMark(currentPos, currentPos + part.length, type)
-              modified = true
+              tr.removeMark(currentPos, currentPos + part.length, type);
+              modified = true;
             }
-            
-            currentPos += part.length
-          })
-        }
-      })
 
-      return modified ? tr : null
-    }
-  })
+            currentPos += part.length;
+          });
+        }
+      });
+
+      return modified ? tr : null;
+    },
+  });
 }
 
 /**
@@ -115,7 +121,7 @@ const Link = TiptapLink.extend({
         default: null,
       },
       target: {
-        default: '_blank',
+        default: "_blank",
       },
     };
   },
@@ -156,10 +162,7 @@ const Link = TiptapLink.extend({
     ];
   },
   addProseMirrorPlugins() {
-    return [
-      createLinkPlugin(this.type),
-      ...this.parent?.() || [],
-    ]
+    return [createLinkPlugin(this.type), ...(this.parent?.() || [])];
   },
 });
 

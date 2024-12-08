@@ -42,7 +42,9 @@ export default function Composer() {
   const [scheduleTime, setScheduleTime] = useState("12:00");
   const [uploadingBoxId, setUploadingBoxId] = useState<string | null>(null);
   const [showPostConfirm, setShowPostConfirm] = useState(false);
-  const [ogData, setOgData] = useState<{ [key: string]: { image: string, title: string, url: string } }>({});
+  const [ogData, setOgData] = useState<{
+    [key: string]: { image: string; title: string; url: string };
+  }>({});
 
   const textareaRefs = useRef<{ [key: string]: HTMLTextAreaElement }>({});
   const editorRefs = useRef<{ [key: string]: TiptapContentRef }>({});
@@ -64,10 +66,10 @@ export default function Composer() {
 
   useEffect(() => {
     // Adjust heights after content loads or changes
-    localContent.forEach(box => {
+    localContent.forEach((box) => {
       const textarea = textareaRefs.current[box.id];
       if (textarea) {
-        textarea.style.height = 'auto';
+        textarea.style.height = "auto";
         textarea.style.height = `${textarea.scrollHeight}px`;
       }
     });
@@ -343,34 +345,36 @@ export default function Composer() {
 
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
-    e.currentTarget.classList.add('border-primary');
+    e.currentTarget.classList.add("border-primary");
   };
 
   const handleDragLeave = (e: DragEvent) => {
     e.preventDefault();
-    e.currentTarget.classList.remove('border-primary');
+    e.currentTarget.classList.remove("border-primary");
   };
 
   const handleDrop = async (e: DragEvent, boxId: string) => {
     e.preventDefault();
-    e.currentTarget.classList.remove('border-primary');
-    
+    e.currentTarget.classList.remove("border-primary");
+
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       await handleMediaUpload(boxId, e.dataTransfer.files);
     }
   };
 
-  const fetchOgData = async (url: string): Promise<{ image: string | null, title: string | null } | null> => {
+  const fetchOgData = async (
+    url: string,
+  ): Promise<{ image: string | null; title: string | null } | null> => {
     try {
       const res = await fetch(`/api/og?url=${encodeURIComponent(url)}`);
       const data = await res.json();
-      return { 
+      return {
         image: data.image || null,
-        title: data.title || null 
+        title: data.title || null,
       };
     } catch (error) {
-      console.error('Failed to fetch OG data:', error);
+      console.error("Failed to fetch OG data:", error);
       return null;
     }
   };
@@ -378,9 +382,9 @@ export default function Composer() {
   useEffect(() => {
     localContent.forEach(async (box) => {
       const links = editorRefs.current[box.id]?.getLinkNodes() || [];
-      
+
       if (!links.length) {
-        setOgData(prev => {
+        setOgData((prev) => {
           const newOg = { ...prev };
           delete newOg[box.id];
           return newOg;
@@ -394,19 +398,19 @@ export default function Composer() {
 
         const data = await fetchOgData(link);
         if (data?.image) {
-          setOgData(prev => ({ 
-            ...prev, 
-            [box.id]: { 
-              image: data.image!, 
+          setOgData((prev) => ({
+            ...prev,
+            [box.id]: {
+              image: data.image!,
               title: data.title || new URL(link).hostname,
-              url: link
-            }
+              url: link,
+            },
           }));
           return;
         }
       }
 
-      setOgData(prev => {
+      setOgData((prev) => {
         const newOg = { ...prev };
         delete newOg[box.id];
         return newOg;
@@ -475,7 +479,7 @@ export default function Composer() {
                 )}
               </div>
               <TiptapContent
-                ref={el => {
+                ref={(el) => {
                   if (el) editorRefs.current[box.id] = el;
                 }}
                 content={box.content}
@@ -513,7 +517,7 @@ export default function Composer() {
                     {ogData[box.id].title}
                   </div>
                 </Link>
-              )} 
+              )}
               {box.media && box.media.length > 0 && (
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {box.media.map((item, i) => (
@@ -614,125 +618,133 @@ export default function Composer() {
         </div>
       </div>
       <>
-        <div className="relative sticky bottom-4">
-          <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-            <PopoverTrigger asChild>
-              <button className="absolute bottom-12 left-1/2 w-0 h-0" />
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-4" align="end" side="top" sideOffset={16}>
-              <div className="flex flex-col gap-4">
-                <div className="space-y-2">
-                  <Label>Date</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="date"
-                      value={
-                        scheduledDate
-                          ? formatTz(
-                              toZonedTime(
-                                scheduledDate,
-                                Intl.DateTimeFormat().resolvedOptions().timeZone,
-                              ),
-                              "yyyy-MM-dd",
-                            )
-                          : ""
-                      }
-                      min={formatTz(new Date(), "yyyy-MM-dd")}
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          // Create date in local timezone
-                          const [year, month, day] = e.target.value.split("-").map(Number);
-                          const localDate = new Date(year, month - 1, day);
-
-                          // If there's an existing scheduled date, preserve the time
-                          if (scheduledDate) {
-                            localDate.setHours(scheduledDate.getHours());
-                            localDate.setMinutes(scheduledDate.getMinutes());
-                          }
-
-                          setScheduledDate(localDate);
+        <div className="mt-60 sticky bottom-4">
+          <Dock className="z-50">
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+              <PopoverTrigger asChild>
+                <DockButton
+                  variant="ghost"
+                  className="bg-primary/10 hover:bg-primary/20"
+                  disabled={isScheduling}
+                  onClick={() => setIsCalendarOpen(true)}
+                >
+                  <Clock className="h-4 w-4 mr-2 text-primary" />
+                  <span className="text-sm text-primary font-medium">
+                    {scheduledDate
+                      ? formatTz(
+                          toZonedTime(
+                            scheduledDate,
+                            Intl.DateTimeFormat().resolvedOptions().timeZone,
+                          ),
+                          "MMM d",
+                        )
+                      : "Schedule"}
+                  </span>
+                </DockButton>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-4">
+                <div className="flex flex-col gap-4">
+                  <div className="space-y-2">
+                    <Label>Date</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="date"
+                        value={
+                          scheduledDate
+                            ? formatTz(
+                                toZonedTime(
+                                  scheduledDate,
+                                  Intl.DateTimeFormat().resolvedOptions().timeZone,
+                                ),
+                                "yyyy-MM-dd",
+                              )
+                            : ""
                         }
-                      }}
+                        min={formatTz(new Date(), "yyyy-MM-dd")}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            // Create date in local timezone
+                            const [year, month, day] = e.target.value.split("-").map(Number);
+                            const localDate = new Date(year, month - 1, day);
+
+                            // If there's an existing scheduled date, preserve the time
+                            if (scheduledDate) {
+                              localDate.setHours(scheduledDate.getHours());
+                              localDate.setMinutes(scheduledDate.getMinutes());
+                            }
+
+                            setScheduledDate(localDate);
+                          }
+                        }}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Time</Label>
+                    <Input
+                      type="time"
+                      value={scheduleTime}
+                      onChange={(e) => setScheduleTime(e.target.value)}
                       className="w-full"
                     />
                   </div>
+                  <Button className="w-full" onClick={handleSchedule} disabled={isScheduling}>
+                    {isScheduling ? "Scheduling..." : "Schedule Tweet"}
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <Label>Time</Label>
-                  <Input
-                    type="time"
-                    value={scheduleTime}
-                    onChange={(e) => setScheduleTime(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-                <Button className="w-full" onClick={handleSchedule} disabled={isScheduling}>
-                  {isScheduling ? "Scheduling..." : "Schedule Tweet"}
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-          <Popover open={showPostConfirm} onOpenChange={setShowPostConfirm}>
-            <PopoverTrigger asChild>
-              <button className="absolute bottom-12 left-1/2 w-0 h-0" />
-            </PopoverTrigger>
-            <PopoverContent className="w-full max-w-md">
-              <div className="flex flex-col items-center text-center p-2">
-                <h3 className="text-xl font-semibold mb-2">Ready to Post?</h3>
-                <p className="text-muted-foreground mb-4">
-                  {localContent.length} tweet thread posting to @{session?.user?.handle}
-                </p>
-                
-                {!session?.user?.subscribed && (
-                  <div className="flex items-center gap-2 mb-4 p-3 bg-muted/50 rounded-lg w-full">
-                    <span className="text-sm text-muted-foreground text-left">
-                      Note: Free tier accounts will have a link to Tweet Maestro appended to their thread
-                    </span>
-                  </div>
-                )}
-
-                <Button 
-                  className="w-full" 
-                  size="lg"
-                  onClick={() => { setShowPostConfirm(false); handlePost() }} 
-                  disabled={isPosting}
+              </PopoverContent>
+            </Popover>
+            <Popover open={showPostConfirm} onOpenChange={setShowPostConfirm}>
+              <PopoverTrigger asChild>
+                <DockButton
+                  variant="default"
+                  className="bg-primary hover:bg-primary/90 flex gap-2"
+                  onClick={() => setShowPostConfirm(true)}
+                  disabled={isPosting || isScheduling || cannotEdit}
                 >
-                  {isPosting ? 'Posting...' : 'Post Now'}
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
-        <div className="mt-60 sticky bottom-4">
-            <Dock className="z-50">
-              {/* <DockButton
-              variant="ghost"
-              className="bg-primary/10 hover:bg-primary/20"
-              disabled={isScheduling}
-              onClick={() => setIsCalendarOpen(true)}
-            >
-              <Clock className="h-4 w-4 mr-2 text-primary" />
-              <span className="text-sm text-primary font-medium">
-                {scheduledDate ? formatTz(toZonedTime(scheduledDate, Intl.DateTimeFormat().resolvedOptions().timeZone), "MMM d") : "Schedule"}
-              </span>
-            </DockButton> */}
-            <DockButton
-              variant="default"
-              className="bg-primary hover:bg-primary/90 flex gap-2"
-              onClick={() => setShowPostConfirm(true)}
-              disabled={isPosting || isScheduling || cannotEdit}
-            >
-              {isPosting ? (
-                <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Send className="h-4 w-4 text-primary-foreground" />
-              )}
-              <span className="text-sm text-primary-foreground font-medium">
-                {isPosting ? "Posting..." : "Post"}
-              </span>
-            </DockButton>
+                  {isPosting ? (
+                    <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4 text-primary-foreground" />
+                  )}
+                  <span className="text-sm text-primary-foreground font-medium">
+                    {isPosting ? "Posting..." : "Post"}
+                  </span>
+                </DockButton>
+              </PopoverTrigger>
+              <PopoverContent className="w-full max-w-md">
+                <div className="flex flex-col items-center text-center p-2">
+                  <h3 className="text-xl font-semibold mb-2">Ready to Post?</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {localContent.length} tweet thread posting to @{session?.user?.handle}
+                  </p>
+
+                  {!session?.user?.subscribed && (
+                    <div className="flex items-center gap-2 mb-4 p-3 bg-muted/50 rounded-lg w-full">
+                      <span className="text-sm text-muted-foreground text-left">
+                        Note: Free tier accounts will have a link to Tweet Maestro appended to their
+                        thread
+                      </span>
+                    </div>
+                  )}
+
+                  <Button
+                    className="w-full"
+                    size="lg"
+                    onClick={() => {
+                      setShowPostConfirm(false);
+                      handlePost();
+                    }}
+                    disabled={isPosting}
+                  >
+                    {isPosting ? "Posting..." : "Post Now"}
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </Dock>
-          </div>
+        </div>
       </>
     </div>
   );

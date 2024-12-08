@@ -132,9 +132,10 @@ const DockButton = React.forwardRef<HTMLButtonElement, DockButtonProps>(
     },
     ref,
   ) => {
+    const defaultMouseX = useMotionValue(Infinity);
     const buttonRef = useRef<HTMLDivElement>(null);
 
-    const distanceCalc = useTransform(mouseX, (val: number) => {
+    const distanceCalc = useTransform(mouseX || defaultMouseX, (val: number) => {
       const bounds = buttonRef.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
       return val - bounds.x - bounds.width / 2;
     });

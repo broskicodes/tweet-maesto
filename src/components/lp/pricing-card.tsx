@@ -197,10 +197,7 @@ export function PricingCard({ className }: { className?: string }) {
               <div className="space-y-2">
                 <Progress value={plan.progressValue} className="h-3 w-full" />
                 <div className="flex justify-center text-xs text-muted-foreground">
-                  <span>
-                    Price doubles after {plan.remainingPurchases} more
-                    purchases
-                  </span>
+                  <span>Price doubles after {plan.remainingPurchases} more purchases</span>
                 </div>
               </div>
             )}

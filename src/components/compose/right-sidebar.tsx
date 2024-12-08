@@ -1,8 +1,23 @@
 import { FC, useCallback, useEffect, useMemo, useState } from "react";
-import { Sidebar, SidebarContent, SidebarHeader, SidebarGroup, SidebarFooter } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarGroup,
+  SidebarFooter,
+} from "@/components/ui/sidebar";
 import { useViewStore } from "@/store/views";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { FileText, Calendar, Loader2, Plus, MoreHorizontal, Trash2, Info, AlertCircle } from "lucide-react";
+import {
+  FileText,
+  Calendar,
+  Loader2,
+  Plus,
+  MoreHorizontal,
+  Trash2,
+  Info,
+  AlertCircle,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { Draft, useDraftsStore } from "@/store/drafts";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,11 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { PricingModal } from "../layout/pricing-modal";
 
 type TabValue = "drafts" | "scheduled" | "posted";
@@ -155,38 +166,36 @@ export const RightSidebar: FC = () => {
       case "compose":
         return (
           <>
-              <SidebarHeader className="h-14 border-b px-2 flex items-center justify-between">
-              <Tabs value={activeTab} onValueChange={(value) => { setActiveTab(value as TabValue) }} className="w-full">
+            <SidebarHeader className="h-14 border-b px-2 flex items-center justify-between">
+              <Tabs
+                value={activeTab}
+                onValueChange={(value) => {
+                  setActiveTab(value as TabValue);
+                }}
+                className="w-full"
+              >
                 <TabsList variant="underline" className="grid w-full grid-cols-2">
-                  <TabsTrigger 
-                    value="drafts" 
-                  >
-                    Drafts
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="posted"
-                  >
-                    Posted
-                  </TabsTrigger>
+                  <TabsTrigger value="drafts">Drafts</TabsTrigger>
+                  <TabsTrigger value="posted">Posted</TabsTrigger>
                 </TabsList>
               </Tabs>
             </SidebarHeader>
             <SidebarContent>
-                <div className="flex flex-col">
-                  <div
-                    onClick={handleNewDraft}
-                    className="p-4 border-b hover:bg-muted/50 cursor-pointer flex items-center gap-2 text-sm text-muted-foreground"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Create new draft
-                  </div>
-                  <ScrollArea className="h-full">
-                    {activeTab === "drafts" && renderTweets("drafts")}
-                    {activeTab === "scheduled" && renderTweets("scheduled")}
-                    {activeTab === "posted" && renderTweets("posted")}
-                  </ScrollArea>
+              <div className="flex flex-col">
+                <div
+                  onClick={handleNewDraft}
+                  className="p-4 border-b hover:bg-muted/50 cursor-pointer flex items-center gap-2 text-sm text-muted-foreground"
+                >
+                  <Plus className="h-4 w-4" />
+                  Create new draft
                 </div>
-              </SidebarContent>
+                <ScrollArea className="h-full">
+                  {activeTab === "drafts" && renderTweets("drafts")}
+                  {activeTab === "scheduled" && renderTweets("scheduled")}
+                  {activeTab === "posted" && renderTweets("posted")}
+                </ScrollArea>
+              </div>
+            </SidebarContent>
             {!session?.user?.subscribed && (
               <SidebarFooter>
                 <HoverCard>
@@ -201,7 +210,15 @@ export const RightSidebar: FC = () => {
                       <p className="text-sm text-muted-foreground">
                         We will append a link to Tweet Maestro to the end of your thread.
                       </p>
-                      <p className="text-sm text-muted-foreground"><span className="text-primary cursor-pointer underline" onClick={() => setShowPricing(true)}>Upgrade to Pro</span> to remove this limitation.</p>
+                      <p className="text-sm text-muted-foreground">
+                        <span
+                          className="text-primary cursor-pointer underline"
+                          onClick={() => setShowPricing(true)}
+                        >
+                          Upgrade to Pro
+                        </span>{" "}
+                        to remove this limitation.
+                      </p>
                     </div>
                   </HoverCardContent>
                 </HoverCard>
@@ -244,7 +261,7 @@ export const RightSidebar: FC = () => {
           </>
         );
     }
-  }, [currentView, activeTab, renderTweets, handleNewDraft]);
+  }, [currentView, activeTab, renderTweets, handleNewDraft, session]);
 
   return (
     <div className="relative h-[calc(100vh-3rem)]">

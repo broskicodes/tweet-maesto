@@ -2,8 +2,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Tweet Maestro",
-  description:
-    "Plan and execute your ideal Twitter strategy.",
+  description: "Plan and execute your ideal Twitter strategy.",
   openGraph: {
     siteName: "Tweet Maestro",
     images: [
@@ -18,8 +17,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Tweet Maestro",
-    description:
-      "Plan and execute your ideal Twitter strategy.",
+    description: "Plan and execute your ideal Twitter strategy.",
     images: ["https://tweetmaestro.com/images/craft.png"],
     creator: "@braedenhall_",
   },

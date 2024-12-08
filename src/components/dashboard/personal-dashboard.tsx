@@ -192,7 +192,7 @@ export function PersonalDashboard() {
         payload: {
           scrapeType: type,
           handles: [selectedHandle.handle],
-        }
+        },
       });
 
       setMessageId(msgId);
@@ -222,7 +222,7 @@ export function PersonalDashboard() {
         payload: {
           scrapeType: TwitterScrapeType.Micro,
           handles: [searchQuery],
-        }
+        },
       });
 
       setMessageId(msgId);
@@ -233,21 +233,20 @@ export function PersonalDashboard() {
     }
   };
 
-
   useEffect(() => {
     if (messageId && trackedMessages.has(messageId)) {
-        const msg = trackedMessages.get(messageId)!;
+      const msg = trackedMessages.get(messageId)!;
 
-        if (msg.status === MessageStatus.Pending) {
-          return;
-        }
+      if (msg.status === MessageStatus.Pending) {
+        return;
+      }
 
-        setIsLoading(true);
-        const type = msg.message.payload.scrapeType;
-        const handle = msg.message.payload.handles[0];
+      setIsLoading(true);
+      const type = msg.message.payload.scrapeType;
+      const handle = msg.message.payload.handles[0];
 
-        (async () => {
-          if (type === TwitterScrapeType.Initialize) {
+      (async () => {
+        if (type === TwitterScrapeType.Initialize) {
           const response = await fetch("/api/profiles", {
             method: "POST",
             body: JSON.stringify({
@@ -287,14 +286,13 @@ export function PersonalDashboard() {
         toast.success(
           type === TwitterScrapeType.Daily ? "Tweets refreshed!" : "Tweets initialized!",
         );
-        
+
         setIsScraping(false);
       })().finally(() => {
         setMessageId(null);
       });
     }
   }, [trackedMessages, messageId]);
-
 
   const doIt = async () => {
     const response = await fetch("/api/profiles", {

@@ -33,7 +33,7 @@ function OnSessionConnectStuff() {
         window.tolt.signup(`@${session.user.handle}`);
       }
     }
-  }
+  };
 
   const setupPosthog = async () => {
     if (session) {
@@ -42,16 +42,19 @@ function OnSessionConnectStuff() {
         // name: session.user.name || undefined,
       });
     }
-  }
+  };
 
   const setupScrape = useCallback(async () => {
     if (session && status === "connected") {
       if (messageId || isScraping) {
-        return
+        return;
       }
 
-      if (session.user.created_at && new Date().getTime() - new Date(session.user.created_at).getTime() <= 30000) {
-        setIsScraping(true)
+      if (
+        session.user.created_at &&
+        new Date().getTime() - new Date(session.user.created_at).getTime() <= 30000
+      ) {
+        setIsScraping(true);
 
         console.log("Initializing Twitter handle:", session.user.handle);
         const msgId = send({
@@ -62,10 +65,10 @@ function OnSessionConnectStuff() {
           },
         });
 
-        setMessageId(msgId)
+        setMessageId(msgId);
       }
     }
-  }, [session, status, messageId, isScraping]);
+  }, [session, status, messageId, isScraping, send]);
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -80,15 +83,15 @@ function OnSessionConnectStuff() {
 
   useEffect(() => {
     if (messageId) {
-      const tracked = trackedMessages.get(messageId)
+      const tracked = trackedMessages.get(messageId);
       if (tracked?.status === MessageStatus.Success || tracked?.status === MessageStatus.Error) {
-        setIsScraping(false)
+        setIsScraping(false);
         if (tracked?.status === MessageStatus.Error) {
-          console.error("Failed to initialize Twitter handle", tracked.response)
+          console.error("Failed to initialize Twitter handle", tracked.response);
         }
       }
     }
-  }, [trackedMessages, messageId])
+  }, [trackedMessages, messageId]);
 
   return null;
 }
@@ -97,8 +100,8 @@ export default function Template({ children }: { children: React.ReactNode }) {
   const { connect } = useWebSocketStore();
 
   useEffect(() => {
-    connect()
-  }, [])
+    connect();
+  }, [connect]);
 
   return (
     <SessionProvider>

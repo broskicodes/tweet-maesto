@@ -6,7 +6,7 @@ import Image from "@tiptap/extension-image";
 import Typography from "@tiptap/extension-typography";
 import Link from "./custom-link";
 import { Extension } from "@tiptap/core";
-import Placeholder from '@tiptap/extension-placeholder'
+import Placeholder from "@tiptap/extension-placeholder";
 import { Plugin } from "prosemirror-state";
 import { forwardRef, useImperativeHandle } from "react";
 import { MAX_CHARS } from "@/lib/types";
@@ -23,30 +23,30 @@ interface TiptapProps {
 
 export interface TiptapContentRef {
   getEditor: () => ReturnType<typeof useEditor> | null;
-  getLinkNodes: () => { href: string, text: string }[];
+  getLinkNodes: () => { href: string; text: string }[];
 }
 
 const MaxLength = Extension.create({
-  name: 'maxLength',
+  name: "maxLength",
   addOptions() {
     return {
       maxLength: MAX_CHARS,
-      mode: 'text'
-    }
+      mode: "text",
+    };
   },
   addProseMirrorPlugins() {
     return [
       new Plugin({
         filterTransaction: (tr, state) => {
-          if (!tr.docChanged) return true
-          
-          const length = tr.doc.nodeSize - 4
-          return length <= this.options.maxLength
-        }
-      })
-    ]
-  }
-})
+          if (!tr.docChanged) return true;
+
+          const length = tr.doc.nodeSize - 4;
+          return length <= this.options.maxLength;
+        },
+      }),
+    ];
+  },
+});
 
 const TiptapContent = forwardRef<TiptapContentRef, TiptapProps>(
   ({ content, editable, placeholder = "Start typing...", maxLength, onUpdate, className }, ref) => {
@@ -58,7 +58,7 @@ const TiptapContent = forwardRef<TiptapContentRef, TiptapProps>(
         Link.configure({
           autolink: true,
           HTMLAttributes: {
-            class: 'text-blue-500 underline hover:text-blue-600 cursor-pointer',
+            class: "text-blue-500 underline hover:text-blue-600 cursor-pointer",
           },
         }),
         StarterKit.configure({
@@ -82,41 +82,45 @@ const TiptapContent = forwardRef<TiptapContentRef, TiptapProps>(
           maxLength: maxLength,
         }),
       ],
-      content: content.split('\n').map(line => `<p>${line}</p>`).join(''),
+      content: content
+        .split("\n")
+        .map((line) => `<p>${line}</p>`)
+        .join(""),
       editable,
       editorProps: {
         attributes: {
-          class: 'w-full bg-transparent border-none focus:outline-none focus:ring-0 p-0 whitespace-pre-wrap min-h-12',
-        }
+          class:
+            "w-full bg-transparent border-none focus:outline-none focus:ring-0 p-0 whitespace-pre-wrap min-h-12",
+        },
       },
       onUpdate: ({ editor }) => {
-        onUpdate?.(editor.getText())
-      }
+        onUpdate?.(editor.getText());
+      },
     });
 
     useImperativeHandle(ref, () => ({
       getEditor: () => editor,
       getLinkNodes: () => {
         if (!editor) return [];
-        
-        const links: { href: string, text: string }[] = [];
+
+        const links: { href: string; text: string }[] = [];
         editor.state.doc.descendants((node, pos) => {
           const marks = node.marks;
-          console.log(marks)
-          const linkMark = marks.find(mark => mark.type.name === 'link');
+          console.log(marks);
+          const linkMark = marks.find((mark) => mark.type.name === "link");
           if (linkMark) {
             links.push({
               href: linkMark.attrs.href,
-              text: node.text || ''
+              text: node.text || "",
             });
           }
         });
         return links;
-      }
+      },
     }));
 
     return <EditorContent editor={editor} className={className} />;
-  }
+  },
 );
 
 TiptapContent.displayName = "TiptapContent";

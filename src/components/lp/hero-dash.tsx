@@ -17,9 +17,12 @@ export default function HeroDash() {
         </h1>
         <div className="flex flex-col items-center gap-2">
           <p className="max-w-lg text-center text-lg text-gray-500 sm:text-xl">
-            Our powerful composer helps you generate viral ideas and write perfectly structured tweets.
+            Our powerful composer helps you generate viral ideas and write perfectly structured
+            tweets.
           </p>
-          <p className="max-w-lg text-center text-lg text-primary sm:text-xl font-bold">Accelerate your Twitter growth</p>
+          <p className="max-w-lg text-center text-lg text-primary sm:text-xl font-bold">
+            Accelerate your Twitter growth
+          </p>
         </div>
       </div>
       <div>

@@ -174,8 +174,9 @@ export const RightSidebar: FC = () => {
                 }}
                 className="w-full"
               >
-                <TabsList variant="underline" className="grid w-full grid-cols-2">
+                <TabsList variant="underline" className="grid w-full grid-cols-3">
                   <TabsTrigger value="drafts">Drafts</TabsTrigger>
+                  <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
                   <TabsTrigger value="posted">Posted</TabsTrigger>
                 </TabsList>
               </Tabs>

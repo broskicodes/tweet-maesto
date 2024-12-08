@@ -42,6 +42,7 @@ export default function Composer() {
   const [scheduleTime, setScheduleTime] = useState("12:00");
   const [uploadingBoxId, setUploadingBoxId] = useState<string | null>(null);
   const [showPostConfirm, setShowPostConfirm] = useState(false);
+  const [cannotEdit, setCannotEdit] = useState(false);
   const [ogData, setOgData] = useState<{
     [key: string]: { image: string; title: string; url: string };
   }>({});
@@ -318,8 +319,6 @@ export default function Composer() {
     return "text-primary";
   };
 
-  const cannotEdit = activeDraft?.status !== "draft";
-
   const handleDeleteMedia = useCallback(async (boxId: string, mediaItem: MediaItem) => {
     try {
       const res = await fetch("/api/s3/delete", {
@@ -418,6 +417,10 @@ export default function Composer() {
     });
   }, [localContent]);
 
+  useEffect(() => {
+    setCannotEdit(activeDraft?.status !== "draft");
+  }, [activeDraft?.status]);
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center gap-4 w-full py-4 px-4">
@@ -484,7 +487,7 @@ export default function Composer() {
                 }}
                 content={box.content}
                 editable={!cannotEdit}
-                // placeholder="Start typing..."
+                placeholder="Start typing..."
                 maxLength={MAX_CHARS}
                 onUpdate={(content) => handleContentChange(box.id, content)}
                 className="w-full"

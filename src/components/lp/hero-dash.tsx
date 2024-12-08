@@ -11,12 +11,17 @@ export default function HeroDash() {
   return (
     <section className="container flex flex-col items-center gap-8 pb-28 pt-20 sm:gap-10">
       <SocialProofUsers />
-      <h1 className="max-w-2xl text-center font-heading text-4xl font-semibold sm:text-5xl tracking-tight">
-        Write better tweets, faster.
-      </h1>
-      <p className="max-w-lg text-center text-lg text-muted-foreground sm:text-xl">
-        Generate viral ideas, compose perfectly structured tweets and watch your engagement grow.
-      </p>
+      <div className="flex flex-col items-center gap-6">
+        <h1 className="max-w-2xl text-center font-heading text-4xl font-semibold sm:text-5xl tracking-tight">
+          Write viral tweets, faster.
+        </h1>
+        <div className="flex flex-col items-center gap-2">
+          <p className="max-w-lg text-center text-lg text-gray-500 sm:text-xl">
+            Our powerful composer helps you generate viral ideas and write perfectly structured tweets.
+          </p>
+          <p className="max-w-lg text-center text-lg text-primary sm:text-xl font-bold">Accelerate your Twitter growth</p>
+        </div>
+      </div>
       <div>
         <Button asChild size="lg" className="cursor-pointer text-lg px-12 py-6">
           {session ? (

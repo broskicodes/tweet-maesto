@@ -86,7 +86,7 @@ const TiptapContent = forwardRef<TiptapContentRef, TiptapProps>(
       editable,
       editorProps: {
         attributes: {
-          class: 'w-full bg-transparent border-none focus:outline-none focus:ring-0 p-0 whitespace-pre-wrap',
+          class: 'w-full bg-transparent border-none focus:outline-none focus:ring-0 p-0 whitespace-pre-wrap min-h-12',
         }
       },
       onUpdate: ({ editor }) => {

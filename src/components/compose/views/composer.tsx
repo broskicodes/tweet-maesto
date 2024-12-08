@@ -507,7 +507,7 @@ export default function Composer() {
                   <img
                     src={ogData[box.id].image}
                     alt=""
-                    className="w-full h-48 object-cover rounded-md"
+                    className="w-full object-cover rounded-md"
                   />
                   <div className="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded text-xs text-white max-w-[90%] truncate">
                     {ogData[box.id].title}

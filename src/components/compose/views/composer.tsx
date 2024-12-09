@@ -640,7 +640,7 @@ export default function Composer() {
                   <span className="text-sm text-primary font-medium">Schedule</span>
                 </DockButton>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-4">
+              <PopoverContent className="w-full max-w-md p-4">
                 <div className="flex flex-col gap-4">
                   <div className="space-y-2">
                     <Label>Date</Label>
@@ -688,7 +688,9 @@ export default function Composer() {
                     />
                   </div>
                   <Button className="w-full" onClick={handleSchedule} disabled={isScheduling}>
-                    {isScheduling ? "Scheduling..." : "Schedule Tweet"}
+                    {isScheduling 
+                      ? `Scheduling...` 
+                      : `Schedule for ${format(scheduledDate, "MMM d")} at ${format(setHours(setMinutes(new Date(), parseInt(scheduleTime.split(':')[1])), parseInt(scheduleTime.split(':')[0])), 'h:mm a')} ${formatTz(scheduledDate, 'zzz')}`}
                   </Button>
                 </div>
               </PopoverContent>

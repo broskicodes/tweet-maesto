@@ -35,11 +35,16 @@ export default function Composer() {
   const [localDraft, setLocalDraft] = useState<Draft | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const [scheduledDate, setScheduledDate] = useState<Date>();
+  const [scheduledDate, setScheduledDate] = useState<Date>(new Date());
   const [isPosting, setIsPosting] = useState(false);
   const [isScheduling, setIsScheduling] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [scheduleTime, setScheduleTime] = useState("12:00");
+  const [scheduleTime, setScheduleTime] = useState(() => {
+    const date = new Date();
+    date.setHours(date.getHours() + 1);
+    date.setMinutes(0);
+    return `${String(date.getHours()).padStart(2, '0')}:00`;
+  });
   const [uploadingBoxId, setUploadingBoxId] = useState<string | null>(null);
   const [showPostConfirm, setShowPostConfirm] = useState(false);
   const [cannotEdit, setCannotEdit] = useState(false);
@@ -632,17 +637,7 @@ export default function Composer() {
                   onClick={() => setIsCalendarOpen(true)}
                 >
                   <Clock className="h-4 w-4 mr-2 text-primary" />
-                  <span className="text-sm text-primary font-medium">
-                    {scheduledDate
-                      ? formatTz(
-                          toZonedTime(
-                            scheduledDate,
-                            Intl.DateTimeFormat().resolvedOptions().timeZone,
-                          ),
-                          "MMM d",
-                        )
-                      : "Schedule"}
-                  </span>
+                  <span className="text-sm text-primary font-medium">Schedule</span>
                 </DockButton>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-4">

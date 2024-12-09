@@ -96,7 +96,7 @@ const TiptapContent = forwardRef<TiptapContentRef, TiptapProps>(
       onUpdate: ({ editor }) => {
         onUpdate?.(editor.getText());
       },
-    });
+    }, [editable]);
 
     useImperativeHandle(ref, () => ({
       getEditor: () => editor,

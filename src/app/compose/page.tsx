@@ -6,7 +6,7 @@ import { LeftSidebar } from "@/components/compose/left-sidebar";
 import { MainView } from "@/components/compose/main-view";
 import { RightSidebar } from "@/components/compose/right-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BannerCTA from "@/components/layout/banner-cta";
 
 export default function New() {
@@ -19,18 +19,18 @@ export default function New() {
         <div className="flex flex-col flex-1">
           <BannerCTA />
           <div className="flex flex-1 h-[calc(100vh-3rem)]">
-            <SidebarProvider defaultOpen={leftOpen} open={leftOpen} onOpenChange={setLeftOpen}>
+            <SidebarProvider open={leftOpen} onOpenChange={setLeftOpen}>
               <LeftSidebar />
               <div className="flex-1">
-                <SidebarProvider
-                  defaultOpen={rightOpen}
-                  open={rightOpen}
-                  onOpenChange={setRightOpen}
-                >
+                <SidebarProvider open={rightOpen} onOpenChange={setRightOpen}>
                   <div className="flex w-full">
                     <MainView
-                      onLeftToggle={() => setLeftOpen(!leftOpen)}
-                      onRightToggle={() => setRightOpen(!rightOpen)}
+                      onLeftToggle={() => {
+                        setLeftOpen(!leftOpen);
+                      }}
+                      onRightToggle={() => {
+                        setRightOpen(!rightOpen);
+                      }}
                     />
                     <RightSidebar />
                   </div>

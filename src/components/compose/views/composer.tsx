@@ -43,7 +43,7 @@ export default function Composer() {
     const date = new Date();
     date.setHours(date.getHours() + 1);
     date.setMinutes(0);
-    return `${String(date.getHours()).padStart(2, '0')}:00`;
+    return `${String(date.getHours()).padStart(2, "0")}:00`;
   });
   const [uploadingBoxId, setUploadingBoxId] = useState<string | null>(null);
   const [showPostConfirm, setShowPostConfirm] = useState(false);

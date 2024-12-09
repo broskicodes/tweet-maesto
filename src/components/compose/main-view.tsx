@@ -23,7 +23,6 @@ interface MainViewProps {
 
 export const MainView: FC<MainViewProps> = ({ onLeftToggle, onRightToggle }) => {
   const { data: session } = useSession();
-
   const { currentView } = useViewStore();
 
   return (

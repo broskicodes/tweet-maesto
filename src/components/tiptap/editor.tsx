@@ -51,52 +51,55 @@ const MaxLength = Extension.create({
 const TiptapContent = forwardRef<TiptapContentRef, TiptapProps>(
   ({ content, editable, placeholder = "Start typing...", maxLength, onUpdate, className }, ref) => {
     // console.log(content.split('\n'))
-    const editor = useEditor({
-      extensions: [
-        // Image,
-        // Typography,
-        Link.configure({
-          autolink: true,
-          HTMLAttributes: {
-            class: "text-blue-500 underline hover:text-blue-600 cursor-pointer",
+    const editor = useEditor(
+      {
+        extensions: [
+          // Image,
+          // Typography,
+          Link.configure({
+            autolink: true,
+            HTMLAttributes: {
+              class: "text-blue-500 underline hover:text-blue-600 cursor-pointer",
+            },
+          }),
+          StarterKit.configure({
+            heading: false,
+            codeBlock: false,
+            bulletList: false,
+            orderedList: false,
+            blockquote: false,
+            listItem: false,
+            hardBreak: false,
+            horizontalRule: false,
+            bold: false,
+            italic: false,
+            code: false,
+            strike: false,
+          }),
+          Placeholder.configure({
+            placeholder,
+          }),
+          MaxLength.configure({
+            maxLength: maxLength,
+          }),
+        ],
+        content: content
+          .split("\n")
+          .map((line) => `<p>${line}</p>`)
+          .join(""),
+        editable,
+        editorProps: {
+          attributes: {
+            class:
+              "w-full bg-transparent border-none focus:outline-none focus:ring-0 p-0 whitespace-pre-wrap min-h-12",
           },
-        }),
-        StarterKit.configure({
-          heading: false,
-          codeBlock: false,
-          bulletList: false,
-          orderedList: false,
-          blockquote: false,
-          listItem: false,
-          hardBreak: false,
-          horizontalRule: false,
-          bold: false,
-          italic: false,
-          code: false,
-          strike: false,
-        }),
-        Placeholder.configure({
-          placeholder,
-        }),
-        MaxLength.configure({
-          maxLength: maxLength,
-        }),
-      ],
-      content: content
-        .split("\n")
-        .map((line) => `<p>${line}</p>`)
-        .join(""),
-      editable,
-      editorProps: {
-        attributes: {
-          class:
-            "w-full bg-transparent border-none focus:outline-none focus:ring-0 p-0 whitespace-pre-wrap min-h-12",
+        },
+        onUpdate: ({ editor }) => {
+          onUpdate?.(editor.getText());
         },
       },
-      onUpdate: ({ editor }) => {
-        onUpdate?.(editor.getText());
-      },
-    }, [editable]);
+      [editable],
+    );
 
     useImperativeHandle(ref, () => ({
       getEditor: () => editor,
@@ -106,7 +109,6 @@ const TiptapContent = forwardRef<TiptapContentRef, TiptapProps>(
         const links: { href: string; text: string }[] = [];
         editor.state.doc.descendants((node, pos) => {
           const marks = node.marks;
-          console.log(marks);
           const linkMark = marks.find((mark) => mark.type.name === "link");
           if (linkMark) {
             links.push({

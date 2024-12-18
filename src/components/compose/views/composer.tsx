@@ -493,7 +493,7 @@ export default function Composer() {
                 content={box.content}
                 editable={!cannotEdit}
                 placeholder="Start typing..."
-                maxLength={MAX_CHARS}
+                maxLength={!session?.user?.verified ? MAX_CHARS : undefined}
                 onUpdate={(content) => handleContentChange(box.id, content)}
                 className="w-full"
               />

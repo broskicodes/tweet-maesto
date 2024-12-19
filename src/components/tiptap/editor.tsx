@@ -69,7 +69,7 @@ const TiptapContent = forwardRef<TiptapContentRef, TiptapProps>(
             orderedList: false,
             blockquote: false,
             listItem: false,
-            hardBreak: false,
+            // hardBreak: false,
             horizontalRule: false,
             bold: false,
             italic: false,
@@ -95,7 +95,18 @@ const TiptapContent = forwardRef<TiptapContentRef, TiptapProps>(
           },
         },
         onUpdate: ({ editor }) => {
-          onUpdate?.(editor.getText());
+          const json = editor.getJSON();
+          
+          const text = json.content?.map(node => {
+            if (node.type === 'paragraph' && node.content) {
+              return node.content
+                .map(content => content.text || '')
+                .join('');
+            }
+            return '';
+          }).join('\n') || '';
+            
+          onUpdate?.(text);
         },
       },
       [editable],
